@@ -1,0 +1,21 @@
+{
+  "name": "kharidarihub",
+  "version": "1.0.0",
+  "description": "Backend for a fully function e-commerce application where people can buy products from all ranges.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "express-request-id": "^2.0.1",
+    "helmet": "^5.1.0",
+    "mongoose": "^6.3.5",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.16"
+  }
+}
