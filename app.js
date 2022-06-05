@@ -3,7 +3,7 @@ const dotenv=require('dotenv');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 const helmet = require('helmet');
-const uuid = require('uuid');
+const assignId=require('./middlewares/assignId');
 
 //initializing express
 const app=express();
@@ -11,29 +11,20 @@ const app=express();
 //Loading contents from .env file
 dotenv.config();
 
-
-//Assigning id to each request
-function assignId (req, res, next) {
-    req.id = uuid.v4()
-    next()
-  }
-
 // Connecting to mongodb cluster
-mongoose.connect(process.env.MONGO_URL,()=>{
-    console.log("MongoDB connection established successfully");
+mongoose.connect(process.env.MONGO_URL,{});
+
+//setup logging cofigurations
+const loggerFormat = ':id [:date[web]]" :method :url" :status :response-time';
+morgan.token("id",(req)=>{
+    return req.id;
 });
+
 
 //Adding middlewares
 app.use(express.json());
 app.use(helmet());
 app.use(assignId);
-
-
-//setup logging cofigurations
-morgan.token("id",(req)=>{
-    return req.id;
-});
-const loggerFormat = ':id [:date[web]]" :method :url" :status :response-time';
 app.use(morgan(loggerFormat,{
     stream:process.stdout,
     skip:(req,res)=>{
@@ -54,4 +45,4 @@ app.get('/',async (req,res)=>{
 });
 
 
-app.listen(8800, () => console.log("Backend Server is Running"));
+app.listen(process.env.port, () => console.log(`Backend Server is Running on port ${process.env.port}`));
