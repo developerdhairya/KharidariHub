@@ -14,8 +14,11 @@ mongoose.connect(MONGO_CONFIG.url).then(()=>console.log("db connected")).catch((
 
 
 app.use(assignId());
+app.use(helmet());
 app.use(express.json());
 app.use(morganImpl);
+// app.use('uploads',express.static('uploads'));
+// app.use('/api',require('./route/app.routes'));
 
 app.listen(process.env.PORT || 4000,()=>{
     console.log(`Server is listening on port ${process.env.PORT || 4000}`);
