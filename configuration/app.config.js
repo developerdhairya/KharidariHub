@@ -1,5 +1,4 @@
 const MONGO_CONFIG={
-    url:process.env.MONGO_CONFIG,
     pageSize:10
 }
 

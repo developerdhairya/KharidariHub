@@ -1,28 +1,30 @@
 const express=require("express");
 const app=express();
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const helmet = require('helmet');
-const {MONGO_CONFIG}=require('./configuration/app.config');
+const mongoose = require('mongoose');
 const {assignId}=require('./middleware/assignId');
 const {morganImpl}=require('./util/morgan');
+const helmet = require('helmet');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./docs/swagger.json');
+const fs = require('fs');
+const customCss = fs.readFileSync((process.cwd()+"/docs/swagger.css"), 'utf8');
+
+// const {autogenImpl}=require('./docs/autogen');
 
 dotenv.config();
 
 //connecting to database
-mongoose.connect(MONGO_CONFIG.url).then(()=>console.log("db connected")).catch(()=>console.log("db connection failed"));
+mongoose.connect(process.env.MONGO_URL).then(()=>console.log("db connected")).catch((e)=>console.log(e));
 
-
-app.use(assignId());
-app.use(helmet());
 app.use(express.json());
+app.use(assignId);
 app.use(morganImpl);
-// app.use('uploads',express.static('uploads'));
-// app.use('/api',require('./route/app.routes'));
+app.use(helmet());
+app.use('/api',require('./route/app.route'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument,{customCss}));
 
 app.listen(process.env.PORT || 4000,()=>{
     console.log(`Server is listening on port ${process.env.PORT || 4000}`);
 })
-
-
 
