@@ -6,6 +6,7 @@ const {assignId}=require('./middleware/assignId');
 const {morganImpl}=require('./util/morgan');
 const helmet = require('helmet');
 const router=require('./route/route');
+const {errorHandler}=require('./middleware/errorHandler')
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(morganImpl);
 app.use(helmet());
 app.use(express.static(__dirname));
 app.use('/api',router);
+app.use(errorHandler);
 
 app.listen(process.env.PORT || 4000,()=>{
     console.log(`Server is listening on port ${process.env.PORT || 4000}`);

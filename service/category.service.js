@@ -13,7 +13,6 @@ async function createCategory(params, callback) {
     model.save().then((response) => {
         return callback(null,response);
     }).catch((err) => {
-        console.log(err);
         return callback(err);
     });
 }
@@ -26,18 +25,18 @@ async function getCategoryById(params, callback) {
         }, "");
     }
     const condition = {
-        id: {
-            $eq: params.id,
+        _id: {
+            $eq: params.categoryId,
         }
     }
     const options = {
         projection: {
-            _id: 0,
-            categoryName: 1,
-            categoryImage: 1
+            _id:0,
+            categoryName: 0,
+            categoryImage: 0,
         }
     }
-    category.findOne(condition, options).then((response) => {
+    category.findOne(condition,options).then((response) => {
         return callback(null, response);
     }).catch((err) => {
         return callback(err);
@@ -87,12 +86,6 @@ async function updateCategoryByName(params, callback) {
             message: "Category Name Required",
         });
     }
-    // console.log(params.categoryDescription);
-    if(!params.categoryImage && !params.categoryName){
-        return callback({
-            message:"Duplicate Update not allowed"
-        })
-    }
     const condition = {
         categoryName: {
             $eq: params.categoryName,
@@ -107,7 +100,7 @@ async function updateCategoryByName(params, callback) {
         $set: params,
     }
     const options = {
-        upsert: true,
+        upsert: false,
     }
     category.updateOne(condition, updateDoc, options).then((response) => {
         return callback(null, response);
@@ -124,7 +117,7 @@ async function deleteCategoryById(params, callback) {
         }, "");
     }
     const condition = {
-        categoryId: {
+        _id: {
             $eq: params.categoryId,
         }
     }

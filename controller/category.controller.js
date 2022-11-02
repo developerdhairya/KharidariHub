@@ -13,8 +13,6 @@ const storage = multer.diskStorage({
 });
 const uploadImg = multer({storage: storage}).single('categoryImage');
 
-
-
 const createCategory=(req,res,next)=>{
     let params={
         categoryName:req.body.categoryName,
@@ -23,7 +21,7 @@ const createCategory=(req,res,next)=>{
     }
     let callback=(err,result)=>{
         if(err){
-            next(JSON.stringify(err));
+            next(err);
         }else{
             res.status(200).send({
                 message:"Success",
@@ -54,11 +52,13 @@ const getCategoryByName=(req,res,next)=>{
 }
 
 const getCategoryById=(req,res,next)=>{
+    console.log(req.params.categoryId);
     let params={
         categoryId:req.params.categoryId
     }
     let callback=(err,result)=>{
         if(err){
+            console.log(JSON.stringify(err));
             next(err);
         }else{
             res.status(200).send({
@@ -70,9 +70,7 @@ const getCategoryById=(req,res,next)=>{
     categoryService.getCategoryById(params,callback);
 }
 
-
 const updateCategoryByName=(req,res,next)=>{
-    console.log(JSON.stringify(req.body));
     let params={
         categoryName:req.params.categoryName,
         categoryDescription:req.body.categoryDescription,
@@ -110,7 +108,7 @@ const deleteCategoryById=(req,res,next)=>{
 
 const deleteCategoryByName=(req,res,next)=>{
     let params={
-        categoryName:req.query.categoryName,
+        categoryName:req.params.categoryName,
     }
     let callback=(err,result)=>{
         if(err){
@@ -125,10 +123,6 @@ const deleteCategoryByName=(req,res,next)=>{
     }
     categoryService.deleteCategoryByName(params,callback);
 }
-
-
-
-
 
 module.exports={
     createCategory,
