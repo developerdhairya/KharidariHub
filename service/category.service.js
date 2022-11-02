@@ -1,5 +1,5 @@
 const { category } = require('../model/category.model');
-const { MONGO_CONFIG } = require('../configuration/app.config');
+const { MONGO_CONFIG } = require('../config/config');
 const { response } = require('express');
 
 async function createCategory(params, callback) {

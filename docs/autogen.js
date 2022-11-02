@@ -1,3 +1,5 @@
+//Boilerplate code for autogenerating swagger.json
+
 const swaggerAutogen = require('swagger-autogen')();
 
 const doc = {

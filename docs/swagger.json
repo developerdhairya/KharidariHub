@@ -14,9 +14,10 @@
     "/api/category": {
       "post": {
         "description": "",
+       
         "parameters": [
           {
-            "name": "body",
+            "name": "kkk",
             "in": "body",
             "schema": {
               "type": "object",
@@ -26,12 +27,16 @@
                 },
                 "categoryDescription": {
                   "example": "any"
-                },
-                "categoryImage": {
-                  "example": "any"
                 }
               }
             }
+          },
+          {
+            "name": "categoryImage",
+            "in": "formData",
+            "type": "file",
+            "required": true,
+            "description": "file to upload"
           }
         ],
         "responses": {

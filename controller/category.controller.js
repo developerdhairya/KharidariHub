@@ -1,12 +1,30 @@
 const categoryService=require('../service/category.service');
+const multer = require('multer');
+const path = require('path');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, __dirname);
+      },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+const uploadImg = multer({storage: storage}).single('categoryImage');
+
+
+
 
 // create category
 const createCategory=(req,res,next)=>{
+    
     let params={
         categoryName:req.body.categoryName,
         categoryDescription:req.body.categoryDescription,
-        categoryImage:req.body.categoryImage,
+        categoryImage:req.file.path,
     }
+    console.log(params);
+    console.log(req);
     let callback=(err,result)=>{
         if(err){
             next(JSON.stringify(err));
@@ -102,5 +120,6 @@ module.exports={
     getCategoryByName,
     getCategoryById,
     updateCategoryById,
-    deleteCategoryById
+    deleteCategoryById,
+    uploadImg
 }
