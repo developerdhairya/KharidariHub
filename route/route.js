@@ -4,12 +4,11 @@ const router=express.Router();
 
 
 router.post('/category',categoryController.uploadImg,categoryController.createCategory);
-router.get('/category',categoryController.getCategoryByName);
-router.put('/category',categoryController.updateCategoryByName);
-router.delete('/category',categoryController.deleteCategoryByName);
-router.get('/category/id',categoryController.getCategoryById);
-router.put('/category/id',categoryController.updateCategoryById);
-router.delete('/category/id',categoryController.deleteCategoryById);
+router.get('/category/:categoryName',categoryController.getCategoryByName);
+router.put('/category/:categoryName',categoryController.updateCategoryByName);
+router.delete('/category/:categoryName',categoryController.deleteCategoryByName);
+router.get('/category/id/:categoryId',categoryController.getCategoryById);
+router.delete('/category/id/:categoryId',categoryController.deleteCategoryById);
 
 
 module.exports=router;

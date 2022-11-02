@@ -15,7 +15,7 @@ const category = new mongoose.model(
             require: true,
             unique: true,
         },
-        categoryDecription: {
+        categoryDescription: {
             type: String,
             require: false,
         },

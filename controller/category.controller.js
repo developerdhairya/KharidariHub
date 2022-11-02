@@ -36,7 +36,7 @@ const createCategory=(req,res,next)=>{
 
 const getCategoryByName=(req,res,next)=>{
     let params={
-        categoryName:req.query.categoryName,
+        categoryName:req.params.categoryName,
         pageSize:req.query.pageSize,
         pageNumber:req.query.pageNumber
     }
@@ -70,29 +70,11 @@ const getCategoryById=(req,res,next)=>{
     categoryService.getCategoryById(params,callback);
 }
 
-const updateCategoryById=(req,res,next)=>{
-    let params={
-        categoryId:req.params.categoryId,
-        categoryName:req.body.categoryName,
-        categoryDescription:req.body.categoryDescription,
-        categoryImage:req.body.categoryImage,
-    }
-    let callback=(err,result)=>{
-        if(err){
-            next(err);
-        }else{
-            res.status(200).send({
-                message:"Success",
-                data:result,
-            });
-        }
-    }
-    categoryService.updateCategoryById(params,callback);
-}
 
 const updateCategoryByName=(req,res,next)=>{
+    console.log(JSON.stringify(req.body));
     let params={
-        categoryName:req.query.categoryName,
+        categoryName:req.params.categoryName,
         categoryDescription:req.body.categoryDescription,
         categoryImage:req.body.categoryImage,
     }
@@ -152,7 +134,6 @@ module.exports={
     createCategory,
     getCategoryByName,
     getCategoryById,
-    updateCategoryById,
     updateCategoryByName,
     deleteCategoryById,
     deleteCategoryByName,

@@ -78,55 +78,36 @@ async function getCategoryByName(params, callback) {
     });
 }
 
-//Update Category By Id
-async function updateCategoryById(params, callback) {
-    if (!params.categoryId) {
-        return callback({
-            message: "Category Id Required",
-        }, "");
-    }
-    const condition = {
-        categoryId: {
-            $eq: params.categoryId,
-        }
-    }
-    const updateParams={...params};
-    let upSchema=["categoryName","categoryDescription","categoryImage"];
-    for(let key in updateParams){
-        if(!upSchema.includes(key) && !updateParams[key]){
-            delete updateParams[key];
-        }
-    }
-    const updateDoc = {
-        $set: updateParams,
-    }
-    const options = {
-        upsert: false,
-    }
-    category.updateOne(condition, updateDoc, options).then((response) => {
-        return callback(null, response);
-    }).catch((err) => {
-        return callback(err);
-    });
-}
+
 
 //Update Category By Name
 async function updateCategoryByName(params, callback) {
     if (!params.categoryName) {
         return callback({
             message: "Category Name Required",
-        }, "");
+        });
+    }
+    // console.log(params.categoryDescription);
+    if(!params.categoryImage && !params.categoryName){
+        return callback({
+            message:"Duplicate Update not allowed"
+        })
     }
     const condition = {
-        categoryId: {
+        categoryName: {
             $eq: params.categoryName,
+        }
+    }
+    for(let key in params){
+        if(!params['key'] || key==='categoryName'){
+            delete key;
         }
     }
     const updateDoc = {
         $set: params,
     }
     const options = {
-        upsert: false,
+        upsert: true,
     }
     category.updateOne(condition, updateDoc, options).then((response) => {
         return callback(null, response);
@@ -177,7 +158,6 @@ module.exports={
     createCategory,
     getCategoryById,
     getCategoryByName,
-    updateCategoryById,
     updateCategoryByName,
     deleteCategoryById,
     deleteCategoryByName
