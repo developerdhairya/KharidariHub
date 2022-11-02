@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(assignId);
 app.use(morganImpl);
 app.use(helmet());
-app.use(express.static(__dirname));
+app.use(express.static('public'));
 app.use('/api',router);
 app.use(errorHandler);
 

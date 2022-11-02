@@ -1,17 +1,4 @@
 const categoryService=require('../service/category.service');
-const multer = require('multer');
-const uuid = require('uuid');
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb)=>{
-        cb(null, __dirname);
-      },
-    filename: (req, file, cb) =>{
-        req.fileName=uuid.v4()+'.'+file.originalname.split('.').pop();
-        cb(null, req.fileName);
-    }
-});
-const uploadImg = multer({storage: storage}).single('categoryImage');
 
 const createCategory=(req,res,next)=>{
     let params={
@@ -131,5 +118,4 @@ module.exports={
     updateCategoryByName,
     deleteCategoryById,
     deleteCategoryByName,
-    uploadImg
 }
