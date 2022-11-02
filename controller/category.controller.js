@@ -1,30 +1,26 @@
 const categoryService=require('../service/category.service');
 const multer = require('multer');
-const path = require('path');
+const uuid = require('uuid');
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
+    destination: (req, file, cb)=>{
         cb(null, __dirname);
       },
-    filename: function (req, file, cb) {
-        cb(null, file.originalname);
+    filename: (req, file, cb) =>{
+        req.fileName=uuid.v4()+'.'+file.originalname.split('.').pop();
+        cb(null, req.fileName);
     }
 });
 const uploadImg = multer({storage: storage}).single('categoryImage');
 
 
 
-
-// create category
 const createCategory=(req,res,next)=>{
-    
     let params={
         categoryName:req.body.categoryName,
         categoryDescription:req.body.categoryDescription,
-        categoryImage:req.file.path,
+        categoryImage:req.fileName,
     }
-    console.log(params);
-    console.log(req);
     let callback=(err,result)=>{
         if(err){
             next(JSON.stringify(err));
@@ -40,9 +36,9 @@ const createCategory=(req,res,next)=>{
 
 const getCategoryByName=(req,res,next)=>{
     let params={
-        categoryName:req.params.categoryName,
-        pageSize:req.params.pageSize,
-        pageNumber:req.params.pageNumber
+        categoryName:req.query.categoryName,
+        pageSize:req.query.pageSize,
+        pageNumber:req.query.pageNumber
     }
     let callback=(err,result)=>{
         if(err){
@@ -94,6 +90,25 @@ const updateCategoryById=(req,res,next)=>{
     categoryService.updateCategoryById(params,callback);
 }
 
+const updateCategoryByName=(req,res,next)=>{
+    let params={
+        categoryName:req.query.categoryName,
+        categoryDescription:req.body.categoryDescription,
+        categoryImage:req.body.categoryImage,
+    }
+    let callback=(err,result)=>{
+        if(err){
+            next(err);
+        }else{
+            res.status(200).send({
+                message:"Success",
+                data:result,
+            });
+        }
+    }
+    categoryService.updateCategoryByName(params,callback);
+}
+
 const deleteCategoryById=(req,res,next)=>{
     let params={
         categoryId:req.params.categoryId,
@@ -111,6 +126,24 @@ const deleteCategoryById=(req,res,next)=>{
     categoryService.deleteCategoryById(params,callback);
 }
 
+const deleteCategoryByName=(req,res,next)=>{
+    let params={
+        categoryName:req.query.categoryName,
+    }
+    let callback=(err,result)=>{
+        if(err){
+            res.status(501).send(err)
+            next(err);
+        }else{
+            res.status(200).send({
+                message:"Success",
+                data:result,
+            });
+        }
+    }
+    categoryService.deleteCategoryByName(params,callback);
+}
+
 
 
 
@@ -120,6 +153,8 @@ module.exports={
     getCategoryByName,
     getCategoryById,
     updateCategoryById,
+    updateCategoryByName,
     deleteCategoryById,
+    deleteCategoryByName,
     uploadImg
 }

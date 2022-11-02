@@ -4,14 +4,10 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const {assignId}=require('./middleware/assignId');
 const {morganImpl}=require('./util/morgan');
+const {SWAGGER_CONFIG}=require('./config/config')
 const helmet = require('helmet');
 const router=require('./route/route');
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./docs/swagger.json');
-const path = require('path');
-const fs = require('fs');
-const customCss = fs.readFileSync(path.join(__dirname+"/docs/swagger.css"), 'utf8');
-// const {autogenImpl}=require('./docs/autogen');
+const expressJSDocSwagger = require('express-jsdoc-swagger');
 
 dotenv.config();
 
@@ -25,6 +21,7 @@ app.use(helmet());
 app.use(express.static(__dirname));
 app.use('/api',router);
 
+expressJSDocSwagger(app)(SWAGGER_CONFIG);
 
 app.listen(process.env.PORT || 4000,()=>{
     console.log(`Server is listening on port ${process.env.PORT || 4000}`);

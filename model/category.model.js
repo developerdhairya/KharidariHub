@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
 
+/**
+ * Categories of products
+ * @typedef {object} Category
+ * @property {string} categoryName.required - categoryName
+ * @property {string} categoryDecription.required - categoryDescription
+ * @property {string} categoryImage.required - categoryImage - binary
+ */
 const category = new mongoose.model(
     "Category",
     mongoose.Schema({
