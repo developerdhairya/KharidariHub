@@ -1,30 +1,6 @@
 const mongoose = require('mongoose');
 
-const address=mongoose.Schema({
-    addressLine1:{
-        type:String,
-        required:true,
-        minLength:3,
-        maxLength:50,
-    },
-    addressLine2:{
-        type:String,
-        required:false,
-        minLength:3,
-        maxLength:50,
-    },
-    country:{
-        type:String,
-        required:true,
-        minLength:4,
-        maxLength:30
-    },
-    zip:{
-        type:Number,
-        required:true,
-        max:100000,
-    }
-});
+
 
 const user=new mongoose.model(
     "user",
@@ -33,7 +9,7 @@ const user=new mongoose.model(
             type:String,
             required:true,
             minLength:2,
-            maxLength:20
+            maxLength:20,
         },
         lastName:{
             type:String,
@@ -50,7 +26,7 @@ const user=new mongoose.model(
             required:true,
             unique:true,
             validate:{
-                validator:(val)=>{'[a-z0-9]+@[a-z \.]+\.[a-z]{2,3}'.test(val)},
+                validator:(val)=>{'/^[a-z0-9\.]+@[a-z\.]+\.[a-z]{2,3}$/'.match(val)},
                 message:(props)=>{`${props.val} is not a valid emailId`}
             }
         },
@@ -58,8 +34,7 @@ const user=new mongoose.model(
             type:Number,
             required:true,
             unique:true
-        },
-        address:address      
+        }  
     })
 );
 
