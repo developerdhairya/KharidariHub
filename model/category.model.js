@@ -5,18 +5,27 @@ const category = new mongoose.model(
     mongoose.Schema({
         categoryName: {
             type: String,
-            require: true,
             unique: true,
+            required: true,
         },
         categoryDescription: {
             type: String,
-            require: false,
+            required: false,
         },
         categoryImage: {
             type: String,
             required: false,
         }
-    }),
+    },
+    {
+        timestamp:true,
+        toJSON:{
+            transform:(doc,ret)=>{
+                delete ret.__v;
+            }
+        }
+    }
+    ),
 );
 
 module.exports = {

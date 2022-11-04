@@ -1,75 +1,28 @@
 const { category } = require('../model/category.model');
 const { MONGO_CONFIG } = require('../config/config');
 
-// Create New Category
-async function createCategory(params, callback) {
-    if (!params.categoryName) {
-        return callback({
-            message: "Category Name Required",
-        });
-    }
-    const model = new category(params);
+
+async function createCategory(props, callback) {
+    const model = new category({
+        categoryName: props.categoryName,
+        categoryDescription: props.categoryDescription,
+        categoryImage: props.categoryImage
+    });
     model.save().then((response) => {
-        return callback(null,response);
+        return callback(null, response);
     }).catch((err) => {
         return callback(err);
     });
 }
 
-//Get Category By Id
-async function getCategoryById(params, callback) {
-    if (!params.categoryId) {
-        return callback({
-            message: "Category Id Required",
-        }, "");
-    }
+
+async function getCategoryById(props, callback) {
     const condition = {
         _id: {
-            $eq: params.categoryId,
+            $eq: props.categoryId,
         }
     }
-    const options = {
-        projection: {
-            _id:0,
-            categoryName: 0,
-            categoryImage: 0,
-        }
-    }
-    category.findOne(condition,options).then((response) => {
-        return callback(null, response);
-    }).catch((err) => {
-        return callback(err);
-    });
-}
-
-// Get Category By Name
-async function getCategoryByName(params, callback) {
-    console.log(5);
-    if (!params.categoryName) {
-        return callback({
-            message: "Category Name Required",
-        });
-    }
-    console.log(7);
-    const condition={
-        categoryName: {
-            $eq:params.categoryName,
-        }
-    } 
-    const options = {
-        sort: {
-            categoryName: 0,
-        },
-        projection: {
-            categoryName: 0,
-            categoryImage: 0,
-        },
-        
-    };
-    let pageSize = Math.abs(params.pageSize) || MONGO_CONFIG.pageSize;
-    let pageNumber = Math.abs(params.pageNumber) || 1;
-
-    category.find(condition,options).limit(pageSize).skip(pageSize * (pageNumber - 1)).then((response) => {
+    category.findOne(condition).then((response) => {
         return callback(null, response);
     }).catch((err) => {
         return callback(err);
@@ -77,26 +30,33 @@ async function getCategoryByName(params, callback) {
 }
 
 
-
-//Update Category By Name
-async function updateCategoryByName(params, callback) {
-    if (!params.categoryName) {
-        return callback({
-            message: "Category Name Required",
-        });
-    }
+async function getCategoryByName(props, callback) {
     const condition = {
         categoryName: {
-            $eq: params.categoryName,
+            $eq: props.categoryName,
         }
     }
-    for(let key in params){
-        if(!params['key'] || key==='categoryName'){
-            delete key;
+    let pageSize = Math.abs(props.pageSize) || MONGO_CONFIG.pageSize;
+    let pageNumber = Math.abs(props.pageNumber) || 1;
+    category.find(condition).limit(pageSize).skip(pageSize * (pageNumber - 1)).then((response) => {
+        return callback(null, response);
+    }).catch((err) => {
+        return callback(err);
+    });
+}
+
+
+async function updateCategoryByName(props, callback) {
+    const condition = {
+        categoryName: {
+            $eq: props.categoryName,
         }
     }
     const updateDoc = {
-        $set: params,
+        $set: {
+            categoryDescription: props.categoryDescription,
+            categoryImage: props.categoryImage
+        },
     }
     const options = {
         upsert: false,
@@ -108,16 +68,11 @@ async function updateCategoryByName(params, callback) {
     });
 }
 
-//Delete Category By Id
-async function deleteCategoryById(params, callback) {
-    if (!params.categoryId) {
-        return callback({
-            message: "Category Id Required",
-        }, "");
-    }
+
+async function deleteCategoryById(props, callback) {
     const condition = {
         _id: {
-            $eq: params.categoryId,
+            $eq: props.categoryId,
         }
     }
     category.deleteOne(condition).then((response) => {
@@ -127,16 +82,11 @@ async function deleteCategoryById(params, callback) {
     });
 }
 
-//Delete Category By Name
-async function deleteCategoryByName(params, callback) {
-    if (!params.categoryName) {
-        return callback({
-            message: "Category Name Required",
-        }, "");
-    }
+
+async function deleteCategoryByName(props, callback) {
     const condition = {
         categoryId: {
-            $eq: params.categoryName,
+            $eq: props.categoryName,
         }
     }
     category.deleteOne(condition).then((response) => {
@@ -146,7 +96,7 @@ async function deleteCategoryByName(params, callback) {
     });
 }
 
-module.exports={
+module.exports = {
     createCategory,
     getCategoryById,
     getCategoryByName,

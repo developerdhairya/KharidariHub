@@ -1,114 +1,60 @@
 const categoryService=require('../service/category.service');
+const { getResponseCallback } = require('../util/response.callback');
+
 
 const createCategory=(req,res,next)=>{
-    let params={
+    let props={
         categoryName:req.body.categoryName,
         categoryDescription:req.body.categoryDescription,
         categoryImage:req.fileName,
     }
-    let callback=(err,result)=>{
-        if(err){
-            next(err);
-        }else{
-            res.status(200).send({
-                message:"Success",
-                data:result,
-            });
-        }
-    }
-    categoryService.createCategory(params,callback);
+    let callback=getResponseCallback(req,res,next);
+    categoryService.createCategory(props,callback);
 }
 
 const getCategoryByName=(req,res,next)=>{
-    let params={
+
+    let props={
         categoryName:req.params.categoryName,
         pageSize:req.query.pageSize,
         pageNumber:req.query.pageNumber
     }
-    let callback=(err,result)=>{
-        if(err){
-            next(err);
-        }else{
-            res.status(200).send({
-                message:"Success",
-                data:result,
-            });
-        }
-    }
-    categoryService.getCategoryByName(params,callback);
+    let callback=getResponseCallback(req,res,next);
+    categoryService.getCategoryByName(props,callback);
 }
 
 const getCategoryById=(req,res,next)=>{
-    console.log(req.params.categoryId);
-    let params={
+    let props={
         categoryId:req.params.categoryId
     }
-    let callback=(err,result)=>{
-        if(err){
-            console.log(JSON.stringify(err));
-            next(err);
-        }else{
-            res.status(200).send({
-                message:"Success",
-                data:result,
-            });
-        }
-    }
-    categoryService.getCategoryById(params,callback);
+    let callback=getResponseCallback(req,res,next);
+    categoryService.getCategoryById(props,callback);
 }
 
 const updateCategoryByName=(req,res,next)=>{
-    let params={
+    let props={
         categoryName:req.params.categoryName,
         categoryDescription:req.body.categoryDescription,
-        categoryImage:req.body.categoryImage,
+        categoryImage:req.fileName,
     }
-    let callback=(err,result)=>{
-        if(err){
-            next(err);
-        }else{
-            res.status(200).send({
-                message:"Success",
-                data:result,
-            });
-        }
-    }
-    categoryService.updateCategoryByName(params,callback);
+    let callback=getResponseCallback(req,res,next);
+    categoryService.updateCategoryByName(props,callback);
 }
 
 const deleteCategoryById=(req,res,next)=>{
-    let params={
+    let props={
         categoryId:req.params.categoryId,
     }
-    let callback=(err,result)=>{
-        if(err){
-            next(err);
-        }else{
-            res.status(200).send({
-                message:"Success",
-                data:result,
-            });
-        }
-    }
-    categoryService.deleteCategoryById(params,callback);
+    let callback=getResponseCallback(req,res,next);
+    categoryService.deleteCategoryById(props,callback);
 }
 
 const deleteCategoryByName=(req,res,next)=>{
-    let params={
+    let props={
         categoryName:req.params.categoryName,
     }
-    let callback=(err,result)=>{
-        if(err){
-            res.status(501).send(err)
-            next(err);
-        }else{
-            res.status(200).send({
-                message:"Success",
-                data:result,
-            });
-        }
-    }
-    categoryService.deleteCategoryByName(params,callback);
+    let callback=getResponseCallback(req,res,next);
+    categoryService.deleteCategoryByName(props,callback);
 }
 
 module.exports={
