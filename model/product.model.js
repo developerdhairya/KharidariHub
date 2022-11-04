@@ -3,11 +3,12 @@ const mongoose = require('mongoose');
 const product = new mongoose.model(
     "product",
     mongoose.Schema({
-        name: {
+        productName: {
             type: String,
             required: true,
+            unique:true
         },
-        description: {
+        productDescription: {
             type: String,
             required: true
         },
@@ -15,16 +16,17 @@ const product = new mongoose.model(
             type: String,
             default: ''
         },
-        images: [{
-            type: String
+        productImages: [{
+            type: String,
+            required: true
         }],
         brand: {
             type: String,
-            default: ''
+            required: true
         },
         price: {
             type: Number,
-            default: 0
+            required: true
         },
         category: {
             type: mongoose.Schema.Types.ObjectId,
@@ -45,8 +47,14 @@ const product = new mongoose.model(
             default: false,
         }
     },
-
-        { timestamp: true })
+        {
+            timestamp: true,
+            toJSON: {
+                transform: (doc, ret) => {
+                    delete ret.__v;
+                }
+            }
+        })
 );
 
 module.exports = {

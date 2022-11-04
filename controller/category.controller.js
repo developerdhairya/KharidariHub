@@ -23,6 +23,16 @@ const getCategoryByName=(req,res,next)=>{
     categoryService.getCategoryByName(props,callback);
 }
 
+const getCategories=(req,res,next)=>{
+    let props={
+        pageSize:req.query.pageSize,
+        pageNumber:req.query.pageNumber
+    }
+    let callback=getResponseCallback(req,res,next);
+    categoryService.getCategories(props,callback);
+}
+
+
 const getCategoryById=(req,res,next)=>{
     let props={
         categoryId:req.params.categoryId
@@ -59,6 +69,7 @@ const deleteCategoryByName=(req,res,next)=>{
 
 module.exports={
     createCategory,
+    getCategories,
     getCategoryByName,
     getCategoryById,
     updateCategoryByName,
