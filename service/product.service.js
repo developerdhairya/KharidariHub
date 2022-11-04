@@ -4,17 +4,18 @@ const { MONGO_CONFIG } = require('../config/config');
 
 async function createProduct(props, callback) {
     const model = new product({
-        productName: req.body.productName,
-        productDescription: req.body.productDescription,
-        richDescription: req.body.richDescription,
-        productImages: req.fileName,
-        brand: req.body.brand,
-        price: req.body.price,
-        category: req.body.category,
-        stock: req.body.stock,
-        rating: req.body.rating,
-        isFeatured: req.body.isFeatured,
+        productName: props.productName,
+        productDescription: props.productDescription,
+        richDescription: props.richDescription,
+        productImages: props.productImages,
+        brand: props.brand,
+        price: props.price,
+        category: props.category,
+        stock: props.stock,
+        rating: props.rating,
+        isFeatured: props.isFeatured,
     });
+    console.log(2);
     model.save().then((response) => {
         return callback(null, response);
     }).catch((err) => {
@@ -66,19 +67,19 @@ async function updateProductByName(props, callback) {
     }
     const updateDoc = {
         $set: {
-            productDescription: req.body.productDescription,
-            richDescription: req.body.richDescription,
-            productImages: req.fileName,
-            brand: req.body.brand,
-            price: req.body.price,
-            category: req.body.category,
-            stock: req.body.stock,
-            rating: req.body.rating,
-            isFeatured: req.body.isFeatured,
+            productDescription: props.productDescription,
+            richDescription: props.richDescription,
+            productImages: props.productImages,
+            brand: props.brand,
+            price: props.price,
+            category: props.category,
+            stock: props.stock,
+            rating: props.rating,
+            isFeatured: props.isFeatured,
         },
     }
     const options = {
-        upsert: false,
+        upsert: true,
     }
     product.updateOne(condition, updateDoc, options).then((response) => {
         return callback(null, response);

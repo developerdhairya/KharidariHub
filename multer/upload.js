@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
 });
 
 const categoryUpload = multer({storage: storage}).single('categoryImage');
-const productsUpload = multer({storage: storage}).single('productImages');
+const productsUpload = multer({storage: storage}).any('productImages');
 
 
 module.exports={

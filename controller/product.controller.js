@@ -3,6 +3,7 @@ const { getResponseCallback } = require('../util/response.callback');
 
 
 const createProduct = (req, res, next) => {
+    console.log(1);
     let props = {
         productName: req.body.productName,
         productDescription: req.body.productDescription,
@@ -16,6 +17,7 @@ const createProduct = (req, res, next) => {
         isFeatured: req.body.isFeatured,
     }
     let callback = getResponseCallback(req, res, next);
+    
     productService.createProduct(props, callback);
 }
 
@@ -47,7 +49,7 @@ const getProductById = (req, res, next) => {
 
 const updateProductByName = (req, res, next) => {
     let props = {
-        productName: req.body.productName,
+        productName: req.params.productName,
         productDescription: req.body.productDescription,
         richDescription: req.body.richDescription,
         productImages: req.fileName,

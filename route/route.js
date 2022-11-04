@@ -1,5 +1,6 @@
 const categoryController=require('../controller/category.controller');
 const userController=require('../controller/user.controller');
+const productController=require('../controller/product.controller');
 const paymentService=require('../service/payment.service');
 const express = require('express');
 const router=express.Router();
@@ -22,6 +23,7 @@ router.put('/product/:productName',upload.productsUpload,productController.updat
 router.delete('/product/:productName',productController.deleteProductByName);
 router.get('/product/id/:productId',productController.getProductById);
 router.delete('/product/id/:productId',productController.deleteProductById);
+
 
 
 

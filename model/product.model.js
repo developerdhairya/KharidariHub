@@ -30,7 +30,7 @@ const product = new mongoose.model(
         },
         category: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Category',
+            ref: 'category',
             required: true
         },
         stock: {
