@@ -1,4 +1,4 @@
-const productService = require('../service/product.service');
+const productService = require('../service/product.service.js');
 const { getResponseCallback } = require('../util/response.callback');
 
 

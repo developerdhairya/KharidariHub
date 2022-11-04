@@ -13,7 +13,6 @@ const createCategory=(req,res,next)=>{
 }
 
 const getCategoryByName=(req,res,next)=>{
-
     let props={
         categoryName:req.params.categoryName,
         pageSize:req.query.pageSize,
