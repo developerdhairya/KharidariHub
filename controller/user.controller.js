@@ -1,4 +1,6 @@
 const userService = require('../service/user.service');
+const { getResponseCallback } = require('../util/response.callback');
+
 
 const registerUser = (req, res, next) => {
     const params = {
@@ -8,18 +10,22 @@ const registerUser = (req, res, next) => {
         mobileNumber: req.body.mobileNumber,
         password: req.body.password,
     }
-    const callback = (err, result) => {
-        if (err) {
-            next(err);
-        } else {
-            res.status(200).send(result);
-        }
-    }
+    let callback = getResponseCallback(req, res, next);
     userService.createUser(params, callback);
+}
+
+const verifyUser=(req,res,next)=>{
+    const params = {
+        emailId: req.query.emailId,
+        otp:req.body.otp,
+    }
+    let callback = getResponseCallback(req, res, next);
+    userService.verifyUser(params,callback);
 }
 
 
 
 module.exports = {
-    createUser: registerUser
+    createUser: registerUser,
+    verifyUser
 }

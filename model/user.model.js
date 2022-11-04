@@ -35,7 +35,7 @@ const user=new mongoose.model(
             required:true,
             unique:true
         },
-        active:{
+        verified:{
             type:Boolean,
             default:false
         },

@@ -15,6 +15,7 @@ router.delete('/category/:categoryName',categoryController.deleteCategoryByName)
 router.get('/category/id/:categoryId',categoryController.getCategoryById);
 router.delete('/category/id/:categoryId',categoryController.deleteCategoryById);
 router.post('/user',userController.createUser);
+router.post('/user/verify',userController.verifyUser);
 
 router.post('/product',upload.productsUpload,productController.createProduct);
 router.get('/product',productController.getProducts);
