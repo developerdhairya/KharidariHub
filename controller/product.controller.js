@@ -3,7 +3,6 @@ const { getResponseCallback } = require('../util/response.callback');
 
 
 const createProduct = (req, res, next) => {
-    console.log(1);
     let props = {
         productName: req.body.productName,
         productDescription: req.body.productDescription,

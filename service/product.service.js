@@ -15,7 +15,6 @@ async function createProduct(props, callback) {
         rating: props.rating,
         isFeatured: props.isFeatured,
     });
-    console.log(2);
     model.save().then((response) => {
         return callback(null, response);
     }).catch((err) => {
@@ -54,8 +53,6 @@ async function getProductByName(props, callback) {
         return callback(err);
     });
 }
-
-
 
 
 

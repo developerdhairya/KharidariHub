@@ -6,7 +6,6 @@ const registerUser = (req, res, next) => {
         lastName: req.body.lastName,
         emailId: req.body.emailId,
         mobileNumber: req.body.mobileNumber,
-        address: req.body.address,
         password: req.body.password,
     }
     const callback = (err, result) => {
