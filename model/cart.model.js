@@ -1,6 +1,6 @@
 const { default: mongoose } = require("mongoose");
 
-const cartSchema = mongoose.Schema({
+const orderItemSchema = mongoose.Schema({
     quantity: {
         type: Number,
         required: true
@@ -17,10 +17,7 @@ const cart = new mongoose.Schema(
     'cart',
     mongoose.Schema({
         orderItems: [orderItemSchema],
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-        }
+
     },
         { timestamp: true }),
 

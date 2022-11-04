@@ -17,7 +17,7 @@ const user=new mongoose.model(
             minLength:2,
             maxLength:20,
         },
-        passwordHash:{
+        hashedPassword:{
             type:String,
             // required:true
         },
@@ -34,7 +34,14 @@ const user=new mongoose.model(
             type:Number,
             required:true,
             unique:true
-        }  
+        },
+        active:{
+            type:Boolean,
+            default:false
+        },
+        otp:{
+            type:Number,
+        }
     })
 );
 
