@@ -1,95 +1,94 @@
-const { default: mongoose } = require("mongoose");
-
+const {default: mongoose} = require('mongoose');
 
 const addressSchema = mongoose.Schema(
     {
-        addressLine1: {
-            type: String,
-            required: true,
-            minLength: 3,
-            maxLength: 50,
-        },
-        addressLine2: {
-            type: String,
-            required: false,
-            minLength: 3,
-            maxLength: 50,
-        },
-        country: {
-            type: String,
-            required: true,
-            minLength: 4,
-            maxLength: 30
-        },
-        zip: {
-            type: Number,
-            required: true,
-            max: 999999,
-        }
+      addressLine1: {
+        type: String,
+        required: true,
+        minLength: 3,
+        maxLength: 50,
+      },
+      addressLine2: {
+        type: String,
+        required: false,
+        minLength: 3,
+        maxLength: 50,
+      },
+      country: {
+        type: String,
+        required: true,
+        minLength: 4,
+        maxLength: 30,
+      },
+      zip: {
+        type: Number,
+        required: true,
+        max: 999999,
+      },
     },
     {
-        timestamp: true,
-        toJSON: {
-            transform: (doc, ret) => {
-                delete ret.__v;
-            }
-        }
-    }
+      timestamp: true,
+      toJSON: {
+        transform: (doc, ret) => {
+          delete ret.__v;
+        },
+      },
+    },
 );
 
 const orderItemSchema = mongoose.Schema(
     {
-        quantity: {
-            type: Number,
-            required: true
-        },
-        product: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Product'
-        }
+      quantity: {
+        type: Number,
+        required: true,
+      },
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+      },
     },
     {
-        timestamp: true,
-        toJSON: {
-            transform: (doc, ret) => {
-                delete ret.__v;
-            }
-        }
-    }
-)
+      timestamp: true,
+      toJSON: {
+        transform: (doc, ret) => {
+          delete ret.__v;
+        },
+      },
+    },
+);
 
-
-const order = new mongoose.Schema(
+const order = new mongoose.model(
     'order',
-    mongoose.Schema({
-        orderItems: [orderItemSchema],
-        status: {
+    mongoose.Schema(
+        {
+          orderItems: [orderItemSchema],
+          status: {
             type: String,
             required: true,
             default: 'Pending',
-        },
-        totalPrice: {
+          },
+          totalPrice: {
             type: Number,
-            required: true
-        },
-        address: addressSchema,
-        user: {
+            required: true,
+          },
+          address: addressSchema,
+          user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-        }
-    },
+          },
+        },
         {
-            timestamp: true,
-            toJSON: {
-                transform: (doc, ret) => {
-                    delete ret.__v;
-                }
-            }
-        }
+          timestamp: true,
+          toJSON: {
+            transform: (doc, ret) => {
+              delete ret.__v;
+            },
+          },
+        },
     ),
 
 );
 
 module.exports = {
-    order
-}
+  order,
+};

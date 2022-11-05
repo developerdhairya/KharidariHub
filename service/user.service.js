@@ -1,15 +1,22 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const uuid = require('uuid');
 const { user } = require('../model/user.model');
 const { cart } = require('../model/cart.model');
-const mailTo = require('../util/mailer')
+const queueMail = require('../util/mailer')
 
-async function createUser(props, callback) {
+async function registerUser(props, callback) {
     if (props.password && !props.password.match(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}/g)) {
         return callback({
             message: "Strong password required",
         });
     }
-    const otp = Math.floor(Math.random() * 10000);
+    const salt=bcrypt.genSaltSync(10);
+    const hashedPassword=bcrypt.hashSync(props.password,salt);// generating hash syncronously
+    const verificationToken = Math.floor(Math.random() * 10000);
+
+
+    //creating user
     let userObj;
     const session = await mongoose.startSession();
     try {
@@ -21,8 +28,8 @@ async function createUser(props, callback) {
             lastName: props.lastName,
             emailId: props.emailId,
             mobileNumber: props.mobileNumber,
-            hashedPassword: props.password,
-            otp: otp,
+            hashedPassword: hashedPassword,
+            verificaionToken: verificationToken,
             cartId: cartObj._id
         });
         userObj = await userModel.save();
@@ -33,76 +40,40 @@ async function createUser(props, callback) {
     } finally {
         session.endSession();
     }
-    mailTo({
+    queueMail({
         emailId: props.emailId,
         subject: "Welcome to Kharidari Hub",
-        body: `Thanks for testing my project.Your otp for email verification is ${otp}`
+        body: `Thanks for testing my project.Your otp for email verification is ${verificationToken}`
     });
-    return callback(null, {userObj:userObj,message:"Verification Required"});
+    return callback(null, {
+        userData: userObj,
+        message: "Verification Required.Kindly check your mail"
+    });
 }
 
-async function resendVerificationOtp(props, callback) {
+//resend the same verification token
+async function resendVerificationToken(props, callback) {
     const condition = {
         emailId: {
             $eq: props.emailId
         }
     }
-    let userObj;
-
-    try{
-        userObj= await user.findOne(condition);
-    }catch(err){
-        callback(err);
+    let verificationToken;
+    try {
+        const userObj = await user.findOne(condition);
+        if (userObj == null || !userObj) throw 'Invalid Account';
+        if (userObj.verified) throw 'User has already been verified';
+        verificationToken = userObj.verificaionToken;
+    } catch (err) {
+        return callback(err);
     }
-
-    if (userObj == null) {
-        return callback({
-            message: "Invalid Account",
-        })
-    }
-    if (userObj.verified) {
-        return callback({
-            message: "User has already been verified",
-        })
-    }
-
-    //sending email asyncronously to reduce response time
-    mailTo({
+    queueMail({
         emailId: props.emailId,
         subject: "Welcome to Kharidari Hub",
-        body: `Thanks for testing my project.Your new otp for email verification is ${otp}`
+        body: `Thanks for testing my project.Your otp for email verification is ${verificationToken}`
     });
-
-    return callback(null, { acknowledged: true, });
-
-
+    return callback(null, { acknowledged: true});
 }
-
-async function forgotPassword(props, callback) {
-    const condition = {
-        emailId: {
-            $eq: props.emailId
-        }
-    }
-    let userObj = await user.findOne(condition);
-    if (userObj == null) {
-        return callback({
-            message: "Invalid Account",
-        })
-    }
-
-    //sending email asyncronously to reduce response time
-    mailTo({
-        emailId: props.emailId,
-        subject: "Welcome to Kharidari Hub",
-        body: `Thanks for testing my project.Your can reset your`
-    });
-
-    return callback(null, { acknowledged: true, })
-
-
-}
-
 
 async function verifyUser(props, callback) {
     const condition = {
@@ -110,31 +81,21 @@ async function verifyUser(props, callback) {
             $eq: props.emailId
         }
     }
-    let userObj = await user.findOne(condition);
-    if (userObj == null) {
-        return callback({
-            message: "Invalid Account",
-        })
-    } else if (userObj.verified) {
-        return callback({
-            message: "User has already been verified",
-        })
-    } else if (userObj.otp !== props.otp) {
-        return callback({
-            message: "Invalid OTP"
-        })
-    }
     const updateDoc = {
         $set: {
             verified: true
         }
     }
-    user.updateOne(condition, updateDoc).then((result) => {
-        return callback(null, result);
-    }).catch((err) => {
+    try {
+        const userObj = await user.findOne(condition);
+        if (userObj == null || !userObj) throw 'Invalid Account';
+        if (userObj.verified) throw 'User has already been verified';
+        if(userObj.otp !== props.otp) throw 'Invalid otp';
+        await user.updateOne(condition,updateDoc);
+        return callback(null,{verified:true});
+    } catch (err) {
         return callback(err);
-    });
-
+    }
 }
 
 
@@ -145,6 +106,7 @@ async function verifyUser(props, callback) {
 
 
 module.exports = {
-    createUser,
-    verifyUser
+    registerUser,
+    verifyUser,
+    resendVerificationToken
 }
