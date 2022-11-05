@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const cart=require('./cart.model');
 
 
 const user=new mongoose.model(
@@ -41,6 +41,10 @@ const user=new mongoose.model(
         },
         otp:{
             type:Number,
+        },
+        cartId:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'cart',
         }
     })
 );

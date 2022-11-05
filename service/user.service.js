@@ -1,5 +1,7 @@
+const mongoose = require('mongoose');
 const { user } = require('../model/user.model');
-const mailTo =require('../util/mailer')
+const { cart } = require('../model/cart.model');
+const mailTo = require('../util/mailer')
 
 async function createUser(props, callback) {
     if (props.password && !props.password.match(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}/g)) {
@@ -7,54 +9,65 @@ async function createUser(props, callback) {
             message: "Strong password required",
         });
     }
-    const otp=Math.floor(Math.random()*1000);
-    const model = new user({
-        firstName: props.firstName,
-        lastName: props.lastName,
+    const otp = Math.floor(Math.random() * 10000);
+    let userObj;
+    const session = await mongoose.startSession();
+    try {
+        session.startTransaction(); //do not return a promise
+        const cartModel = new cart({});
+        const cartObj = await cartModel.save();
+        const userModel = new user({
+            firstName: props.firstName,
+            lastName: props.lastName,
+            emailId: props.emailId,
+            mobileNumber: props.mobileNumber,
+            hashedPassword: props.password,
+            otp: otp,
+            cartId: cartObj._id
+        });
+        userObj = await userModel.save();
+        await session.commitTransaction();
+    } catch (err) {
+        await session.abortTransaction();
+        return callback(err);
+    } finally {
+        session.endSession();
+    }
+    mailTo({
         emailId: props.emailId,
-        mobileNumber: props.mobileNumber,
-        hashedPassword: props.password,
-        otp:otp
+        subject: "Welcome to Kharidari Hub",
+        body: `Thanks for testing my project.Your otp for email verification is ${otp}`
     });
-    model.save().then((result) => {
-        mailTo({
-            emailId:props.emailId,
-            subject:"Welcome to Kharidari Hub",
-            body:`Thanks for testing my project.Your otp for email verification is ${otp}`
-        })
-        return callback(null, result);
-    }).catch((err) => {
-        return callback(err);;
-    })
+    return callback(null, userObj);
 }
 
 async function verifyUser(props, callback) {
-    const condition={
-        emailId:{
-            $eq:props.emailId
+    const condition = {
+        emailId: {
+            $eq: props.emailId
         }
     }
-    let userObj=await user.findOne(condition);
-    if(userObj==null){
+    let userObj = await user.findOne(condition);
+    if (userObj == null) {
         return callback({
-            message:"Invalid Account",
+            message: "Invalid Account",
         })
-    }else if(userObj.verified){
+    } else if (userObj.verified) {
         return callback({
-            message:"User has already been verified",
+            message: "User has already been verified",
         })
-    }else if(userObj.otp!==props.otp){
+    } else if (userObj.otp !== props.otp) {
         return callback({
-            message:"Invalid OTP"
+            message: "Invalid OTP"
         })
     }
-    const updateDoc={
-        $set:{
-            verified:true
+    const updateDoc = {
+        $set: {
+            verified: true
         }
     }
-    user.updateOne(condition,updateDoc).then((result) => {
-        return callback(null,result);
+    user.updateOne(condition, updateDoc).then((result) => {
+        return callback(null, result);
     }).catch((err) => {
         return callback(err);
     });
