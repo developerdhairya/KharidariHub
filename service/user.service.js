@@ -38,8 +38,71 @@ async function createUser(props, callback) {
         subject: "Welcome to Kharidari Hub",
         body: `Thanks for testing my project.Your otp for email verification is ${otp}`
     });
-    return callback(null, userObj);
+    return callback(null, {userObj:userObj,message:"Verification Required"});
 }
+
+async function resendVerificationOtp(props, callback) {
+    const condition = {
+        emailId: {
+            $eq: props.emailId
+        }
+    }
+    let userObj;
+
+    try{
+        userObj= await user.findOne(condition);
+    }catch(err){
+        callback(err);
+    }
+
+    if (userObj == null) {
+        return callback({
+            message: "Invalid Account",
+        })
+    }
+    if (userObj.verified) {
+        return callback({
+            message: "User has already been verified",
+        })
+    }
+
+    //sending email asyncronously to reduce response time
+    mailTo({
+        emailId: props.emailId,
+        subject: "Welcome to Kharidari Hub",
+        body: `Thanks for testing my project.Your new otp for email verification is ${otp}`
+    });
+
+    return callback(null, { acknowledged: true, });
+
+
+}
+
+async function forgotPassword(props, callback) {
+    const condition = {
+        emailId: {
+            $eq: props.emailId
+        }
+    }
+    let userObj = await user.findOne(condition);
+    if (userObj == null) {
+        return callback({
+            message: "Invalid Account",
+        })
+    }
+
+    //sending email asyncronously to reduce response time
+    mailTo({
+        emailId: props.emailId,
+        subject: "Welcome to Kharidari Hub",
+        body: `Thanks for testing my project.Your can reset your`
+    });
+
+    return callback(null, { acknowledged: true, })
+
+
+}
+
 
 async function verifyUser(props, callback) {
     const condition = {
@@ -73,6 +136,10 @@ async function verifyUser(props, callback) {
     });
 
 }
+
+
+
+
 
 
 
