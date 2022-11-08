@@ -42,6 +42,7 @@ const getCategoryById=(req,res,next)=>{
 }
 
 const updateCategoryByName=(req,res,next)=>{
+    console.log(req.user);
     let props={
         categoryName:req.params.categoryName,
         categoryDescription:req.body.categoryDescription,
@@ -67,6 +68,7 @@ const deleteCategoryByName=(req,res,next)=>{
         user:req.user,
 
     }
+    console.log(props);
     let callback=getResponseCallback(req,res,next);
     categoryService.deleteCategoryByName(props,callback);
 }

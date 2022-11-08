@@ -28,7 +28,7 @@ async function registerUser(props, callback) {
       address:props.address
     });
     const userObj = await userModel.save();
-    const cartModel = new cart({userId:userObj._id});
+    const cartModel = new cart({userId:userObj._id,checkoutPrice:0});
     await cartModel.save();
     await session.commitTransaction();
     mailingService.sendVerificationToken(props.emailId, verificationToken);
@@ -99,9 +99,9 @@ async function login(props, callback) {
       throw 'Invalid Password';
     }
     const payload = {
+      userId:userObj._id,
       emailId: props.emailId,
       isAdmin: userObj.isAdmin,
-
     };
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET,{
       'expiresIn':'1h'

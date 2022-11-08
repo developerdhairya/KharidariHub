@@ -3,6 +3,11 @@ const {MONGO_CONFIG} = require('../config/config');
 
 
 async function createProduct(props, callback) {
+  if(!props.user.isAdmin){
+    return callback({
+      message:"Unauthorized"
+    })
+  }
   const model = new product({
     productName: props.productName,
     productDescription: props.productDescription,
@@ -56,6 +61,11 @@ async function getProductByName(props, callback) {
 
 
 async function updateProductByName(props, callback) {
+  if(!props.user.isAdmin){
+    return callback({
+      message:"Unauthorized"
+    })
+  }
   const condition = {
     productName: {
       $eq: props.productName,
@@ -86,6 +96,11 @@ async function updateProductByName(props, callback) {
 
 
 async function deleteProductById(props, callback) {
+  if(!props.user.isAdmin){
+    return callback({
+      message:"Unauthorized"
+    })
+  }
   const condition = {
     _id: {
       $eq: props.productId,
@@ -100,6 +115,11 @@ async function deleteProductById(props, callback) {
 
 
 async function deleteProductByName(props, callback) {
+  if(!props.user.isAdmin){
+    return callback({
+      message:"Unauthorized"
+    })
+  }
   const condition = {
     productId: {
       $eq: props.productName,

@@ -14,6 +14,7 @@ const createProduct = (req, res, next) => {
         stock: req.body.stock,
         rating: req.body.rating,
         isFeatured: req.body.isFeatured,
+        user:req.user,
     }
     let callback = getResponseCallback(req, res, next);
     
@@ -58,6 +59,7 @@ const updateProductByName = (req, res, next) => {
         stock: req.body.stock,
         rating: req.body.rating,
         isFeatured: req.body.isFeatured,
+        user:req.user
     }
     let callback = getResponseCallback(req, res, next);
     productService.updateProductByName(props, callback);
@@ -66,6 +68,7 @@ const updateProductByName = (req, res, next) => {
 const deleteProductById = (req, res, next) => {
     let props = {
         productId: req.params.productId,
+        user:req.user
     }
     let callback = getResponseCallback(req, res, next);
     productService.deleteProductById(props, callback);
@@ -74,6 +77,7 @@ const deleteProductById = (req, res, next) => {
 const deleteProductByName = (req, res, next) => {
     let props = {
         productName: req.params.productName,
+        user:req.user
     }
     let callback = getResponseCallback(req, res, next);
     productService.deleteProductByName(props, callback);

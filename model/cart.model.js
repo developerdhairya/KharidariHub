@@ -16,12 +16,15 @@ const fields={
       type:Number,
       required:true
     },
-    totalPrice:{
+    price:{
       type:Number,
-      required:true,
-      default:0,
+      required:true
     }
-  }]
+  }],
+  checkoutPrice:{
+    type:Number,
+    required:true
+  }
 }
 
 const options={
@@ -29,6 +32,7 @@ const options={
   toJSON: {
     transform: function(doc, obj){
       delete obj.__v;
+      // delete obj.orderItems
     },
   },
 }

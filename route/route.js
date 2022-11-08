@@ -1,11 +1,16 @@
 const categoryController=require('../controller/category.controller');
 const userController=require('../controller/user.controller');
 const productController=require('../controller/product.controller');
-const paymentService=require('../service/payment.service');
+const cartController=require('../controller/cart.controller');
 const express = require('express');
 const router=express.Router();
 const upload=require('../multer/upload');
 
+router.post('/user', userController.registerUser);
+router.put('/user/verify', userController.verifyUser);
+router.get('/user/verification/resendToken',userController.resendVerificationToken);
+router.post('/user/login',userController.login);
+router.get('/user/accessToken',userController.generateAccessToken);
 
 router.post('/category', upload.categoryUpload, categoryController.createCategory);
 router.get('/category', categoryController.getCategories);
@@ -23,11 +28,11 @@ router.delete('/product/:productName', productController.deleteProductByName);
 router.get('/product/id/:productId', productController.getProductById);
 router.delete('/product/id/:productId', productController.deleteProductById);
 
-router.post('/user', userController.registerUser);
-router.put('/user/verify', userController.verifyUser);
-router.get('/user/verification/resendToken',userController.resendVerificationToken);
-router.post('/user/login',userController.login);
-router.get('/user/accessToken',userController.generateAccessToken);
+router.put('/cart/add',cartController.addToCart);
+router.put('/cart/deduct',cartController.deductFromCart);
+router.get('/cart',cartController.getCart);
+
+
 
 
 

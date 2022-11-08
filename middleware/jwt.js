@@ -9,7 +9,7 @@ function processJWT(req, res, next) {
         }
     }
     if(!req.headers || !req.headers['authorization']){
-        return res.status(401).json({});
+        return res.status(401).json({message:"Unauthorized"});
     }
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -17,7 +17,7 @@ function processJWT(req, res, next) {
         return res.status(401);
     }
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) res.status(403);
+        if (err || user==null || !user) return res.status(403).json({message:"Unauthorized"});
         req.user = user;
         next();
     })

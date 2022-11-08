@@ -3,6 +3,7 @@ const {MONGO_CONFIG} = require('../config/config');
 
 
 async function createCategory(props, callback) {
+  console.log(props);
   if(!props.user.isAdmin){
     return callback({
       message:"Unauthorized"
@@ -107,7 +108,7 @@ async function deleteCategoryByName(props, callback) {
     })
   }
   const condition = {
-    categoryId: {
+    categoryName: {
       $eq: props.categoryName,
     },
   };

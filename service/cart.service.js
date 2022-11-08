@@ -1,70 +1,82 @@
 const cart = require('../model/cart.model');
-
+const product = require('../model/product.model');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 async function addToCart(props, callback) {
   try {
-    if (!props.userId) throw 'userId required';
-    if (!props.productId) throw 'userId required';
-    const condition={userId: props.userId};
-    const productPrice=await product.findById(props.productId).select('price');
-    const cartObj=await cart.findOne(condition);// will never return null as cart is created at time of user creation
-    const isPresent=false;
-    for (const obj of cartObj.orderItems) {
-      if (obj.productId===props.productId) {
-        obj.quantity+=1;
-        obj.price+=productPrice;
-        isPresent=true;
+    if (!props.productId || !props.quantity) throw 'productId and quantity required';
+
+    const condition = {userId: new ObjectId(props.user.userId)};
+    const cartObj = await cart.findOne(condition);// will never return null as cart is created at time of user creation
+    let checkoutPrice = cartObj.checkoutPrice; 
+    const productObj = await product.findById(props.productId).select('price');
+    const productPrice=productObj.price;
+
+    let isPresent = false;
+    for (let item of cartObj.orderItems) {
+      if (item.productId._id == props.productId) {
+        item.quantity += props.quantity;
+        item.price+=productPrice * props.quantity;
+        checkoutPrice += productPrice * props.quantity;
+        isPresent = true;
         break;
       }
     }
     if (!isPresent) {
-      cartObj.push({
+      cartObj.orderItems.push({
         productId: props.productId,
-        quantity: 1,
-        totalPrice: obj.productPrice,
+        quantity: props.quantity,
+        price:productPrice*props.quantity
       });
+      checkoutPrice=productPrice * props.quantity;
     }
-    const updateDoc={
+    const updateDoc = {
       $set: {
         orderItems: cartObj.orderItems,
+        checkoutPrice:checkoutPrice
       },
     };
-    const updatedCartObj=await cart.updateOne(condition, updateDoc);
-    callback(updatedCartObj);
+    const updatedCartObj = await cart.updateOne(condition, updateDoc);
+    return callback(null, updatedCartObj);
   } catch (err) {
-    callback(err);
+    return callback(err);
   }
 }
 
-async function removeFromCart(props, callback) {
+
+async function deductFromCart(props, callback) {
   try {
-    if (!props.userId) throw 'userId required';
-    if (!props.productId) throw 'userId required';
-    const condition={userId: props.userId};
-    const productPrice=await product.findById(props.productId).select('price');
-    const cartObj=await cart.findOne(condition);// will never return null as cart is created at time of user creation
-    const isPresent=false;
-    for (const obj of cartObj.orderItems) {
-      if (obj.productId===props.productId) {
-        obj.quantity-=1;
-        obj.price-=productPrice;
-        if (obj.quantity==0) {
-          delete cartObj.orderItems.obj;
+    if (!props.productId) throw 'productId required';
+    const condition = {userId: new ObjectId(props.user.userId)};
+    const cartObj = await cart.findOne(condition);                // will never return null as cart is created at time of user creation
+    let checkoutPrice = cartObj.checkoutPrice; 
+    const productObj = await product.findById(props.productId).select('price');
+    const productPrice=productObj.price;
+
+    let isPresent = false;
+    for (let item of cartObj.orderItems) {
+      if (item.productId._id == props.productId) {
+        item.quantity -= 1;
+        checkoutPrice -= productPrice;
+        item.price-=productPrice;
+        if(item.quantity===0){
+          cartObj.orderItems.splice(cartObj.orderItems.indexOf(item), 1);
         }
-        isPresent=true;
+        isPresent = true;
         break;
       }
     }
     if (!isPresent) {
       throw 'Item not Present';
     }
-    const updateDoc={
+    const updateDoc = {
       $set: {
         orderItems: cartObj.orderItems,
+        checkoutPrice:checkoutPrice
       },
     };
-    const updatedCartObj=await cart.updateOne(condition, updateDoc);
-    return callback(updatedCartObj);
+    const updatedCartObj = await cart.updateOne(condition, updateDoc);
+    return callback(null, updatedCartObj);
   } catch (err) {
     return callback(err);
   }
@@ -72,24 +84,21 @@ async function removeFromCart(props, callback) {
 
 async function getCart(props, callback) {
   try {
-    if (!props.userId) throw 'userId required';
-    const cartObj=cart.findOne({userId: props.userId}).populate({
-      path: 'orderItems',
-      populate: {
-        path: 'productId',
-        model: 'product',
-        select: 'productName productImage price',
-        populate: {
-          path: 'categoryId',
-          model: 'category',
-          select: 'categoryName',
-        },
-      },
+    if (!props.user.userId) throw 'userId required';
+    cart.findOne({userId: props.user.userId}).populate('orderItems.productId').exec((err,res)=>{
+      console.log(res);
+      if(err) throw err;
+      return callback(null,res);
     });
-    return callback(cartObj);
+    
   } catch (err) {
     return callback(err);
   }
 }
 
 
+module.exports = {
+  addToCart,
+  deductFromCart,
+  getCart,
+};
