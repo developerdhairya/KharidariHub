@@ -1,18 +1,21 @@
 const Razorpay = require('razorpay');
 
-async function createPaymentLink(amount) {
-  const instance = new Razorpay({key_id: 'rzp_test_wTBzMtXjLX8JOz', key_secret: 'isNnyJxP7xkI2DeJWINtxtzG'});
+const instance = new Razorpay({ key_id: process.env.rzp_key_id, key_secret: process.env.rzp_key_secret });
+
+
+async function createPaymentLink(amount, email) {
+
 
   const response = await instance.paymentLink.create({
     amount: amount,
     currency: 'INR',
     accept_partial: false,
-    first_min_partial_amount: 100,
+    first_min_partial_amount: 0,
     description: 'For order at Kharidari Hub',
     customer: {
       name: 'null',
-      email: 'null',
-      contact: 'null',
+      email: email,
+      contact: '+918295314421',
     },
     notify: {
       sms: true,
@@ -30,7 +33,11 @@ async function createPaymentLink(amount) {
   };
 }
 
+async function verifyPayment(paymentId) {
+  instance.paymentLink.fetch(paymentLinkId);
+}
+
 module.exports = {
   createPaymentLink,
+  verifyPayment
 };
-// instance.paymentLink.fetch(paymentLinkId);

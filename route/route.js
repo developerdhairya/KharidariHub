@@ -2,6 +2,7 @@ const categoryController=require('../controller/category.controller');
 const userController=require('../controller/user.controller');
 const productController=require('../controller/product.controller');
 const cartController=require('../controller/cart.controller');
+const orderController=require('../controller/order.controller');
 const express = require('express');
 const router=express.Router();
 const upload=require('../multer/upload');
@@ -32,6 +33,7 @@ router.put('/cart/add',cartController.addToCart);
 router.put('/cart/deduct',cartController.deductFromCart);
 router.get('/cart',cartController.getCart);
 
+router.post('/order/create',orderController.createOrder);
 
 
 

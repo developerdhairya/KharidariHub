@@ -4,18 +4,39 @@ const paymentService=require('./payment.service');
 
 async function createOrder(props, callback) {
   try {
-    if (!props.userId) throw 'userId required';
-    const condition={userId: props.userId};
-    const cartObj=await cart.findOne(condition);// will never return null as cart is created at time of user creation
-    const paymentObj=await paymentService.createPaymentLink(amount);
-    const orderObj={...cartObj};
-    orderObj.paymentId=paymentObj.paymentId;
-    orderObj.paymentUrl=paymentObj.paymentUrl;
-    const orderModel=new order(orderObj);
-    const response=order.save();
+    const condition={userId: props.user.userId};
+    let cartObj=await cart.findOne(condition);// will never return null as cart is created at time of user creation
+    const paymentObj=await paymentService.createPaymentLink(cartObj.checkoutPrice,props.user.emailId);
+    cartObj=cartObj.toJSON();
+    cartObj.paymentId=paymentObj.paymentId;
+    cartObj.paymentUrl=paymentObj.paymentUrl;
+    const orderModel=new order(cartObj);
+    const response=orderModel.save();
+    //truncate cart
     return callback(null, response);
   } catch (err) {
+    console.log(err);
     return callback(err);
   }
 }
 
+async function verifyPayment(props,callback){
+  try{
+    let orderObj=await order.findById(props.orderId);
+    if(orderObj.userId!==props.user.userId) throw 'Unauthorized';
+    console.log(await paymentService.verifyPayment(orderObj.paymentId));
+
+
+  }catch{
+
+  }
+}
+
+//get all orders
+//write docs
+
+
+
+module.exports={
+  createOrder
+}

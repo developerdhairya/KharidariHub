@@ -32,7 +32,7 @@ const options={
   toJSON: {
     transform: function(doc, obj){
       delete obj.__v;
-      // delete obj.orderItems
+      delete obj._id;
     },
   },
 }
