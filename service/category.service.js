@@ -3,6 +3,11 @@ const {MONGO_CONFIG} = require('../config/config');
 
 
 async function createCategory(props, callback) {
+  if(!props.user.isAdmin){
+    return callback({
+      message:"Unauthorized"
+    })
+  }
   const model = new category({
     categoryName: props.categoryName,
     categoryDescription: props.categoryDescription,
@@ -49,6 +54,11 @@ async function getCategoryByName(props, callback) {
 
 
 async function updateCategoryByName(props, callback) {
+  if(!props.user.isAdmin){
+    return callback({
+      message:"Unauthorized"
+    })
+  }
   const condition = {
     categoryName: {
       $eq: props.categoryName,
@@ -72,6 +82,11 @@ async function updateCategoryByName(props, callback) {
 
 
 async function deleteCategoryById(props, callback) {
+  if(!props.user.isAdmin){
+    return callback({
+      message:"Unauthorized"
+    })
+  }
   const condition = {
     _id: {
       $eq: props.categoryId,
@@ -86,6 +101,11 @@ async function deleteCategoryById(props, callback) {
 
 
 async function deleteCategoryByName(props, callback) {
+  if(!props.user.isAdmin){
+    return callback({
+      message:"Unauthorized"
+    })
+  }
   const condition = {
     categoryId: {
       $eq: props.categoryName,

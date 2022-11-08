@@ -1,4 +1,3 @@
-const { request } = require('express');
 const userService = require('../service/user.service');
 const { getResponseCallback } = require('../util/response.callback');
 
@@ -10,9 +9,18 @@ const registerUser = (req, res, next) => {
         emailId: req.body.emailId,
         mobileNumber: req.body.mobileNumber,
         password: req.body.password,
+        address:req.body.address
     }
     let callback = getResponseCallback(req, res, next);
     userService.registerUser(props, callback);
+}
+
+const resendVerificationToken=(req,res,next)=>{
+    const props = {
+        emailId: req.query.emailId,
+    }
+    let callback = getResponseCallback(req, res, next);
+    userService.resendVerificationToken(props,callback);
 }
 
 const verifyUser=(req,res,next)=>{
@@ -24,26 +32,28 @@ const verifyUser=(req,res,next)=>{
     userService.verifyUser(props,callback);
 }
 
-const resendVerificationToken=(req,res,next)=>{
-    const props = {
-        emailId: req.query.emailId,
-    }
-    let callback = getResponseCallback(req, res, next);
-    userService.resendVerificationToken(props,callback);
-}
-
 const login=(req,res,next)=>{
     const props={
-        emailId:req.params.emailId
+        emailId:req.body.emailId,
+        password:req.body.password,
     }
     let callback=getResponseCallback(req,res,next);
-    userService.generateJWT(props,callback);
+    userService.login(props,callback);
 }
 
+const generateAccessToken=(req,res,next)=>{
+    const props = {
+        refreshToken:req.body.refreshToken
+    }
+    let callback = getResponseCallback(req, res, next);
+    userService.generateAccessToken(props,callback);
+}
 
 
 module.exports = {
     registerUser,
     verifyUser,
-    resendVerificationToken
+    resendVerificationToken,
+    login,
+    generateAccessToken
 }

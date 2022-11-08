@@ -50,10 +50,6 @@ let fields={
   passwordResetToken: {
     type: String,
   },
-  cartId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'cart',
-  },
   address:{
     addressLine1: {
       type: String,
@@ -67,10 +63,16 @@ let fields={
       minLength: 3,
       maxLength: 50,
     },
+    city: {
+      type: String,
+      required: true,
+      minLength: 3,
+      maxLength: 30,
+    },
     country: {
       type: String,
       required: true,
-      minLength: 4,
+      minLength: 3,
       maxLength: 30,
     },
     zip: {
@@ -87,6 +89,7 @@ let options={
     transform: function(doc, obj){
       delete obj.__v;
       delete obj.hashedPassword;
+      delete obj.verificationToken
     },
   },
 }

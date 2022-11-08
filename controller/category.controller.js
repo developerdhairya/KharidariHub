@@ -7,6 +7,7 @@ const createCategory=(req,res,next)=>{
         categoryName:req.body.categoryName,
         categoryDescription:req.body.categoryDescription,
         categoryImage:req.fileName,
+        user:req.user,
     }
     let callback=getResponseCallback(req,res,next);
     categoryService.createCategory(props,callback);
@@ -45,6 +46,7 @@ const updateCategoryByName=(req,res,next)=>{
         categoryName:req.params.categoryName,
         categoryDescription:req.body.categoryDescription,
         categoryImage:req.fileName,
+        user:req.user,
     }
     let callback=getResponseCallback(req,res,next);
     categoryService.updateCategoryByName(props,callback);
@@ -53,6 +55,7 @@ const updateCategoryByName=(req,res,next)=>{
 const deleteCategoryById=(req,res,next)=>{
     let props={
         categoryId:req.params.categoryId,
+        user:req.user,
     }
     let callback=getResponseCallback(req,res,next);
     categoryService.deleteCategoryById(props,callback);
@@ -61,6 +64,8 @@ const deleteCategoryById=(req,res,next)=>{
 const deleteCategoryByName=(req,res,next)=>{
     let props={
         categoryName:req.params.categoryName,
+        user:req.user,
+
     }
     let callback=getResponseCallback(req,res,next);
     categoryService.deleteCategoryByName(props,callback);

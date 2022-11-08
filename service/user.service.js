@@ -4,6 +4,7 @@ const uuid = require('uuid');
 const mailingService = require('./mailing.service');
 const user = require('../model/user.model');
 const cart = require('../model/cart.model');
+const jwt=require('jsonwebtoken');
 
 async function registerUser(props, callback) {
   if (props.password && !props.password.match(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}/g)) {
@@ -17,8 +18,6 @@ async function registerUser(props, callback) {
   const session = await mongoose.startSession();
   try {
     session.startTransaction(); // do not return a promise
-    const cartModel = new cart({});
-    const cartObj = await cartModel.save();
     const userModel = new user({
       firstName: props.firstName,
       lastName: props.lastName,
@@ -26,9 +25,11 @@ async function registerUser(props, callback) {
       mobileNumber: props.mobileNumber,
       hashedPassword: hashedPassword,
       verificationToken: verificationToken,
-      cartId: cartObj._id,
+      address:props.address
     });
     const userObj = await userModel.save();
+    const cartModel = new cart({userId:userObj._id});
+    await cartModel.save();
     await session.commitTransaction();
     mailingService.sendVerificationToken(props.emailId, verificationToken);
     return callback(null, {
@@ -77,7 +78,7 @@ async function verifyUser(props, callback) {
     const userObj = await user.findOne(condition);
     if (userObj == null || !userObj) throw 'Invalid Account';
     if (userObj.verified) throw 'User has already been verified';
-    if (userObj.otp !== props.otp) throw 'Invalid OTP';
+    if (userObj.verificationToken !== props.verificationToken) throw 'Invalid OTP';
     await user.updateOne(condition, updateDoc);
     return callback(null, {verified: true});
   } catch (err) {
@@ -86,19 +87,26 @@ async function verifyUser(props, callback) {
 }
 
 async function login(props, callback) {
-  if (!props.emailId) {
-    return callback({message: 'Email Id required'});
+  if (!props.emailId || !props.password) {
+    return callback({message: 'emailId and password required'});
   }
   try {
     if (!props.emailId) throw 'Email Id required';
     const userObj = await user.findOne({emailId: props.emailId});
     if (!userObj || userObj == null) throw 'User Not Found';
+    if (!userObj.verified) throw 'User Not Verified';
+    if(!bcrypt.compareSync(props.password,userObj.hashedPassword)){
+      throw 'Invalid Password';
+    }
     const payload = {
       emailId: props.emailId,
       isAdmin: userObj.isAdmin,
+
     };
-    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN);
-    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN);
+    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET,{
+      'expiresIn':'1h'
+    });
+    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
     return callback(null, {accessToken: accessToken, refreshToken: refreshToken});
   } catch (err) {
     return callback(err);
@@ -109,11 +117,11 @@ async function generateAccessToken(props, callback) {
   if (!props.refreshToken || props.refreshToken === null) {
     callback({message: 'Refresh Token Required'});
   }
-  jwt.verify(props.refreshToken, process.env.REFRESH_TOKEN, (err, user) => {
+  jwt.verify(props.refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, payload) => {
     if (err) {
-      callback({message: 'Invalid Token'});
+      return callback({message: 'Invalid Token'});
     }
-    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN);
+    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
     return callback(null, {accessToken: accessToken});
   });
 }

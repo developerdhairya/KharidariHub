@@ -26,6 +26,8 @@ router.delete('/product/id/:productId', productController.deleteProductById);
 router.post('/user', userController.registerUser);
 router.put('/user/verify', userController.verifyUser);
 router.get('/user/verification/resendToken',userController.resendVerificationToken);
+router.post('/user/login',userController.login);
+router.get('/user/accessToken',userController.generateAccessToken);
 
 
 
