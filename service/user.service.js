@@ -56,7 +56,7 @@ async function resendVerificationToken(props, callback) {
     if (userObj == null || !userObj) throw 'Invalid Account';
     if (userObj.verified) throw 'User has already been verified';
     mailingService.sendVerificationToken(props.emailId, userObj.verificationToken);
-    return callback(null, { acknowledged: true });
+    return callback(null, {acknowledged: true});
   } catch (err) {
     return callback(err);
   }
@@ -79,7 +79,7 @@ async function verifyUser(props, callback) {
     if (userObj.verified) throw 'User has already been verified';
     if (userObj.otp !== props.otp) throw 'Invalid OTP';
     await user.updateOne(condition, updateDoc);
-    return callback(null, { verified: true });
+    return callback(null, {verified: true});
   } catch (err) {
     return callback(err);
   }
@@ -87,19 +87,19 @@ async function verifyUser(props, callback) {
 
 async function login(props, callback) {
   if (!props.emailId) {
-    return callback({ message: "Email Id required" });
+    return callback({message: 'Email Id required'});
   }
   try {
     if (!props.emailId) throw 'Email Id required';
-    const userObj = await user.findOne({ emailId: props.emailId });
-    if (!userObj || userObj == null) throw "User Not Found";
+    const userObj = await user.findOne({emailId: props.emailId});
+    if (!userObj || userObj == null) throw 'User Not Found';
     const payload = {
       emailId: props.emailId,
-      isAdmin: userObj.isAdmin
-    }
+      isAdmin: userObj.isAdmin,
+    };
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN);
     const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN);
-    return callback(null, { accessToken: accessToken, refreshToken: refreshToken });
+    return callback(null, {accessToken: accessToken, refreshToken: refreshToken});
   } catch (err) {
     return callback(err);
   }
@@ -107,14 +107,14 @@ async function login(props, callback) {
 
 async function generateAccessToken(props, callback) {
   if (!props.refreshToken || props.refreshToken === null) {
-    callback({ message: 'Refresh Token Required' });
+    callback({message: 'Refresh Token Required'});
   }
   jwt.verify(props.refreshToken, process.env.REFRESH_TOKEN, (err, user) => {
     if (err) {
-      callback({ message: 'Invalid Token' });
+      callback({message: 'Invalid Token'});
     }
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN);
-    return callback(null, { accessToken: accessToken });
+    return callback(null, {accessToken: accessToken});
   });
 }
 
@@ -123,5 +123,5 @@ module.exports = {
   registerUser,
   verifyUser,
   resendVerificationToken,
-  login, generateAccessToken
+  login, generateAccessToken,
 };
