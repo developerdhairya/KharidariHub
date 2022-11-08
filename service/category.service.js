@@ -1,4 +1,4 @@
-const {category} = require('../model/category.model');
+const category = require('../model/category.model');
 const {MONGO_CONFIG} = require('../config/config');
 
 

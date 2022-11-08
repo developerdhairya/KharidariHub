@@ -6,7 +6,8 @@ const {assignId}=require('./middleware/assignId');
 const {morganImpl}=require('./util/morgan');
 const helmet = require('helmet');
 const router=require('./route/route');
-const {errorHandler}=require('./middleware/errorHandler')
+const {errorHandler}=require('./middleware/errorHandler');
+const {processJWT}=require('./middleware/jwt');
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(assignId);
 app.use(morganImpl);
 app.use(helmet());
 app.use(express.static('public'));
+app.use(processJWT);
 app.use('/api',router);
 app.use(errorHandler);
 

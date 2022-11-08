@@ -26,15 +26,24 @@ const verifyUser=(req,res,next)=>{
 
 const resendVerificationToken=(req,res,next)=>{
     const props = {
-        emailId: req.params.emailId,
+        emailId: req.query.emailId,
     }
     let callback = getResponseCallback(req, res, next);
-    userService.verifyUser(props,callback);
+    userService.resendVerificationToken(props,callback);
+}
+
+const login=(req,res,next)=>{
+    const props={
+        emailId:req.params.emailId
+    }
+    let callback=getResponseCallback(req,res,next);
+    userService.generateJWT(props,callback);
 }
 
 
 
 module.exports = {
     registerUser,
-    verifyUser
+    verifyUser,
+    resendVerificationToken
 }

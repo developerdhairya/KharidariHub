@@ -1,36 +1,39 @@
 const Razorpay = require('razorpay');
 
-async function createPaymentLink() {
-  const instance = new Razorpay({key_id: 'rzp_test_wTBzMtXjLX8JOz', key_secret: 'isNnyJxP7xkI2DeJWINtxtzG'});
+async function createPaymentLink(amount) {
+  const instance = new Razorpay({ key_id: 'rzp_test_wTBzMtXjLX8JOz', key_secret: 'isNnyJxP7xkI2DeJWINtxtzG' });
 
-  console.log(100);
-
-  instance.paymentLink.create({
-    amount: 500,
-    currency: 'INR',
-    accept_partial: true,
+  let response = await instance.paymentLink.create({
+    amount: amount,
+    currency: "INR",
+    accept_partial: false,
     first_min_partial_amount: 100,
-    description: 'For XYZ purpose',
+    description: "For order at Kharidari Hub",
     customer: {
-      name: 'Gaurav Kumar',
-      email: 'gaurav.kumar@example.com',
-      contact: '+919999999999',
+      name: "null",
+      email: "null",
+      contact: "null"
     },
     notify: {
       sms: true,
-      email: true,
+      email: true
     },
     reminder_enable: true,
-    notes: {
-      policy_name: 'Jeevan Bima',
-    },
-    callback_url: 'https://google.com/',
-    callback_method: 'get',
-  }).then((res));
+    notes: {},
+    callback_url: "https://google.com/",
+    callback_method: "get"
+  });
 
-  instance.paymentLink.fetch(paymentLinkId);
+  return {
+    paymentId: response.id,
+    paymentUrl: response.short_url
+  }
+
+
+
 }
 
 module.exports = {
   createPaymentLink,
 };
+// instance.paymentLink.fetch(paymentLinkId);

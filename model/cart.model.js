@@ -1,41 +1,38 @@
 const mongoose = require('mongoose');
 
-const orderItemSchema = mongoose.Schema(
-  {
-    quantity: {
-      type: Number,
-      required: true,
+const fields={
+  userId:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'user',
+    required:true,
+  },
+  orderItems:[{
+    productId:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:'product',
+      required:true,
     },
-    product: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
+    quantity:{
+      type:Number,
+      required:true
     },
-  }, {
-  timestamp: true,
+    totalPrice:{
+      type:Number,
+      required:true,
+      default:0,
+    }
+  }]
+}
+
+const options={
+  timestamps: true,
   toJSON: {
-    transform: (doc, ret) => {
-      delete ret.__v;
+    transform: function(doc, obj){
+      delete obj.__v;
     },
   },
-},
-);
+}
 
-const cart = new mongoose.model(
-  'cart',
-  mongoose.Schema({
-    orderItems: [orderItemSchema],
-  }, {
-    timestamp: true,
-    toJSON: {
-      transform: (doc, ret) => {
-        delete ret.__v;
-      },
-    },
-  },
-  ),
+const cart = new mongoose.model('cart',mongoose.Schema(fields,options));
 
-);
-
-module.exports = {
-  cart,
-};
+module.exports = cart;

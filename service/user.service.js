@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const uuid = require('uuid');
 const mailingService = require('./mailing.service');
-const {user} = require('../model/user.model');
-const {cart} = require('../model/cart.model');
+const user = require('../model/user.model');
+const cart = require('../model/cart.model');
 
 async function registerUser(props, callback) {
   if (props.password && !props.password.match(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}/g)) {
@@ -14,8 +14,8 @@ async function registerUser(props, callback) {
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(props.password, salt);// generating hash syncronously
   const verificationToken = Math.floor(Math.random() * 10000);
+  const session = await mongoose.startSession();
   try {
-    const session = await mongoose.startSession();
     session.startTransaction(); // do not return a promise
     const cartModel = new cart({});
     const cartObj = await cartModel.save();
@@ -25,7 +25,7 @@ async function registerUser(props, callback) {
       emailId: props.emailId,
       mobileNumber: props.mobileNumber,
       hashedPassword: hashedPassword,
-      verificaionToken: verificationToken,
+      verificationToken: verificationToken,
       cartId: cartObj._id,
     });
     const userObj = await userModel.save();
@@ -36,6 +36,7 @@ async function registerUser(props, callback) {
       message: 'Verification Required.Kindly check your mail',
     });
   } catch (err) {
+    console.log(err);
     await session.abortTransaction();
     return callback(err);
   } finally {
@@ -43,7 +44,7 @@ async function registerUser(props, callback) {
   }
 }
 
-// resend the same verification token
+
 async function resendVerificationToken(props, callback) {
   const condition = {
     emailId: {
@@ -54,8 +55,8 @@ async function resendVerificationToken(props, callback) {
     const userObj = await user.findOne(condition);
     if (userObj == null || !userObj) throw 'Invalid Account';
     if (userObj.verified) throw 'User has already been verified';
-    mailingService.sendVerificationToken(props.emailId, userObj.verificaionToken);
-    return callback(null, {acknowledged: true});
+    mailingService.sendVerificationToken(props.emailId, userObj.verificationToken);
+    return callback(null, { acknowledged: true });
   } catch (err) {
     return callback(err);
   }
@@ -78,10 +79,43 @@ async function verifyUser(props, callback) {
     if (userObj.verified) throw 'User has already been verified';
     if (userObj.otp !== props.otp) throw 'Invalid OTP';
     await user.updateOne(condition, updateDoc);
-    return callback(null, {verified: true});
+    return callback(null, { verified: true });
   } catch (err) {
     return callback(err);
   }
+}
+
+async function login(props, callback) {
+  if (!props.emailId) {
+    return callback({ message: "Email Id required" });
+  }
+  try {
+    if (!props.emailId) throw 'Email Id required';
+    const userObj = await user.findOne({ emailId: props.emailId });
+    if (!userObj || userObj == null) throw "User Not Found";
+    const payload = {
+      emailId: props.emailId,
+      isAdmin: userObj.isAdmin
+    }
+    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN);
+    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN);
+    return callback(null, { accessToken: accessToken, refreshToken: refreshToken });
+  } catch (err) {
+    return callback(err);
+  }
+}
+
+async function generateAccessToken(props, callback) {
+  if (!props.refreshToken || props.refreshToken === null) {
+    callback({ message: 'Refresh Token Required' });
+  }
+  jwt.verify(props.refreshToken, process.env.REFRESH_TOKEN, (err, user) => {
+    if (err) {
+      callback({ message: 'Invalid Token' });
+    }
+    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN);
+    return callback(null, { accessToken: accessToken });
+  });
 }
 
 
@@ -89,4 +123,5 @@ module.exports = {
   registerUser,
   verifyUser,
   resendVerificationToken,
+  login, generateAccessToken
 };

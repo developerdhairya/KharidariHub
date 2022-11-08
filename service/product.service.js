@@ -1,4 +1,4 @@
-const {product} = require('../model/product.model');
+const product = require('../model/product.model');
 const {MONGO_CONFIG} = require('../config/config');
 
 
@@ -10,7 +10,7 @@ async function createProduct(props, callback) {
     productImages: props.productImages,
     brand: props.brand,
     price: props.price,
-    category: props.category,
+    categoryId: props.categoryId,
     stock: props.stock,
     rating: props.rating,
     isFeatured: props.isFeatured,
@@ -68,7 +68,7 @@ async function updateProductByName(props, callback) {
       productImages: props.productImages,
       brand: props.brand,
       price: props.price,
-      category: props.category,
+      categoryId: props.categoryId,
       stock: props.stock,
       rating: props.rating,
       isFeatured: props.isFeatured,

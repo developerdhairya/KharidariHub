@@ -29,6 +29,4 @@ const category = new mongoose.model(
     ),
 );
 
-module.exports = {
-  category,
-};
+module.exports = category;

@@ -1,94 +1,50 @@
-const {default: mongoose} = require('mongoose');
+const mongoose = require('mongoose');
 
-const addressSchema = mongoose.Schema(
-    {
-      addressLine1: {
-        type: String,
-        required: true,
-        minLength: 3,
-        maxLength: 50,
-      },
-      addressLine2: {
-        type: String,
-        required: false,
-        minLength: 3,
-        maxLength: 50,
-      },
-      country: {
-        type: String,
-        required: true,
-        minLength: 4,
-        maxLength: 30,
-      },
-      zip: {
-        type: Number,
-        required: true,
-        max: 999999,
-      },
-    },
-    {
-      timestamp: true,
-      toJSON: {
-        transform: (doc, ret) => {
-          delete ret.__v;
-        },
-      },
-    },
-);
-
-const orderItemSchema = mongoose.Schema(
-    {
-      quantity: {
-        type: Number,
-        required: true,
-      },
-      product: {
+const fields = {
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
-      },
+        ref: 'user',
+        required: true,
     },
-    {
-      timestamp: true,
-      toJSON: {
-        transform: (doc, ret) => {
-          delete ret.__v;
-        },
-      },
-    },
-);
-
-const order = new mongoose.model(
-    'order',
-    mongoose.Schema(
-        {
-          orderItems: [orderItemSchema],
-          status: {
-            type: String,
+    orderItems: [{
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'product',
             required: true,
-            default: 'Pending',
-          },
-          totalPrice: {
+        },
+        quantity: {
+            type: Number,
+            required: true
+        },
+        totalPrice: {
             type: Number,
             required: true,
-          },
-          address: addressSchema,
-          user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-          },
-        },
-        {
-          timestamp: true,
-          toJSON: {
-            transform: (doc, ret) => {
-              delete ret.__v;
-            },
-          },
-        },
-    ),
+        }
+    }],
+    paymentId: {
+        type: String,
+        required: true,
+    },
+    paymentUrl:{
+        type:String,
+        required:true
+    },
+    orderStatus: {
+        type: String,
+        required: true,
+        default: 'pending'
+    }
+}
 
-);
+const options = {
+    timestamps: true,
+    toJSON: {
+        transform: function (doc, obj) {
+            delete obj.__v;
+        },
+    },
+}
 
-module.exports = {
-  order,
-};
+const order = new mongoose.model('order', mongoose.Schema(fields, options));
+
+module.exports = order;
