@@ -103,10 +103,11 @@ async function login(props, callback) {
       emailId: props.emailId,
       isAdmin: userObj.isAdmin,
     };
-    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET,{
-      'expiresIn':'1h'
+    console.log(payload);
+    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
+    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET,{
+      expiresIn:'90d'
     });
-    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
     return callback(null, {accessToken: accessToken, refreshToken: refreshToken});
   } catch (err) {
     return callback(err);
@@ -121,6 +122,8 @@ async function generateAccessToken(props, callback) {
     if (err) {
       return callback({message: 'Invalid Token'});
     }
+    delete payload['iat'];
+    delete payload['exp'];
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET,{
       expiresIn:'1h'
     });
