@@ -31,7 +31,7 @@ async function registerUser(props, callback) {
     const cartModel = new cart({userId:userObj._id,checkoutPrice:0});
     await cartModel.save();
     await session.commitTransaction();
-    mailingService.sendVerificationToken(props.emailId, verificationToken);
+    mailingService.sendVerificationToken(props.emailId, verificationToken); //async op
     return callback(null, {
       userData: userObj,
       message: 'Verification Required.Kindly check your mail',
@@ -121,7 +121,9 @@ async function generateAccessToken(props, callback) {
     if (err) {
       return callback({message: 'Invalid Token'});
     }
-    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
+    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET,{
+      expiresIn:'1h'
+    });
     return callback(null, {accessToken: accessToken});
   });
 }
