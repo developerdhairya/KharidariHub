@@ -3,6 +3,8 @@ const { getResponseCallback } = require('../util/response.callback');
 
 
 const createProduct = (req, res, next) => {
+    let callback=getResponseCallback(req,res,next);
+    if(!req.user.isAdmin) return callback(403,{message:"Unauthorized to perform the desired action"});
     let props = {
         productName: req.body.productName,
         productDescription: req.body.productDescription,
@@ -16,7 +18,6 @@ const createProduct = (req, res, next) => {
         isFeatured: req.body.isFeatured,
         user:req.user,
     }
-    let callback = getResponseCallback(req, res, next);
     
     productService.createProduct(props, callback);
 }

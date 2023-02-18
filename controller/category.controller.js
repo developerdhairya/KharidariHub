@@ -4,7 +4,7 @@ const { getResponseCallback } = require('../util/response.callback');
 
 const createCategory=(req,res,next)=>{
     let callback=getResponseCallback(req,res,next);
-    if(!req.user.isAdmin) return callback(404,{message:"Unauthorized to perform the desired action"});
+    if(!req.user.isAdmin) return callback(403,{message:"Unauthorized to perform the desired action"});
     let props={
         categoryName:req.body.categoryName,
         categoryDescription:req.body.categoryDescription,
@@ -23,13 +23,13 @@ const getCategoryByName=(req,res,next)=>{
     categoryService.getCategoryByName(props,callback);
 }
 
-const getCategories=(req,res,next)=>{
+const getAllCategories=(req,res,next)=>{
     let props={
         pageSize:req.query.pageSize,
         pageNumber:req.query.pageNumber
     }
     let callback=getResponseCallback(req,res,next);
-    categoryService.getCategories(props,callback);
+    categoryService.getAllCategories(props,callback);
 }
 
 
@@ -41,44 +41,42 @@ const getCategoryById=(req,res,next)=>{
     categoryService.getCategoryById(props,callback);
 }
 
-const updateCategoryByName=(req,res,next)=>{
-    console.log(req.user);
+const updateCategoryById=(req,res,next)=>{
+    let callback=getResponseCallback(req,res,next);
+    if(!req.user.isAdmin) return callback(403,{message:"Unauthorized to perform the desired action"});
     let props={
-        categoryName:req.params.categoryName,
+        categoryId:req.params.categoryId,
+        categoryName:req.body.categoryName,
         categoryDescription:req.body.categoryDescription,
         categoryImage:req.fileName,
-        user:req.user,
     }
-    let callback=getResponseCallback(req,res,next);
-    categoryService.updateCategoryByName(props,callback);
+    categoryService.updateCategoryById(props,callback);
 }
 
 const deleteCategoryById=(req,res,next)=>{
+    let callback=getResponseCallback(req,res,next);
+    if(!req.user.isAdmin) return callback(403,{message:"Unauthorized to perform the desired action"});
     let props={
         categoryId:req.params.categoryId,
-        user:req.user,
     }
-    let callback=getResponseCallback(req,res,next);
     categoryService.deleteCategoryById(props,callback);
 }
 
 const deleteCategoryByName=(req,res,next)=>{
+    let callback=getResponseCallback(req,res,next);
+    if(!req.user.isAdmin) return callback(403,{message:"Unauthorized to perform the desired action"});
     let props={
         categoryName:req.params.categoryName,
-        user:req.user,
-
     }
-    console.log(props);
-    let callback=getResponseCallback(req,res,next);
     categoryService.deleteCategoryByName(props,callback);
 }
 
 module.exports={
     createCategory,
-    getCategories,
+    getAllCategories,
     getCategoryByName,
     getCategoryById,
-    updateCategoryByName,
+    updateCategoryById,
     deleteCategoryById,
     deleteCategoryByName,
 }

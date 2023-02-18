@@ -1,5 +1,4 @@
 const category = require('../model/category.model');
-const {MONGO_CONFIG} = require('../config/config');
 const {uploadToCloudinary}=require('../util/upload');
 
 
@@ -19,99 +18,77 @@ async function createCategory(props, callback) {
   }
 }
 
-async function getCategories(props, callback) {
-  const pageSize = Math.abs(props.pageSize) || MONGO_CONFIG.pageSize;
+async function getAllCategories(props, callback) {
+  const pageSize = Math.abs(props.pageSize) || 10;
   const pageNumber = Math.abs(props.pageNumber) || 1;
-  category.find({}).limit(pageSize).skip(pageSize * (pageNumber - 1)).then((response) => {
-    return callback(null, response);
+  category.find({}).limit(pageSize).skip(pageSize * (pageNumber - 1)).then((data) => {
+    return callback(200, data);
   }).catch((err) => {
-    return callback(err);
+    return callback(null,null,err);
   });
 }
 
 async function getCategoryById(props, callback) {
-  category.findById(props.categoryId).then((response) => {
-    return callback(null, response);
+  category.findById(props.categoryId).then((data) => {
+    return data?callback(200, {message:data}):callback(404,{message:"Invalid Category"});
   }).catch((err) => {
-    return callback(err);
+    return callback(null,null,err);
   });
 }
 
 
 async function getCategoryByName(props, callback) {
   const condition = {
-    categoryName: {
-      $eq: props.categoryName,
-    },
+    categoryName: props.categoryName
   };
-  category.findOne(condition).then((response) => {
-    return callback(null, response);
+  category.findOne(condition).then((data) => {
+    return data?callback(200, {message:data}):callback(404,{message:"Invalid Category"});
   }).catch((err) => {
-    return callback(err);
+    return callback(null,null,err);
   });
 }
 
 
-async function updateCategoryByName(props, callback) {
-  if(!props.user.isAdmin){
-    return callback({
-      message:"Unauthorized"
-    })
+async function updateCategoryById(props, callback) {
+  const tempDoc={};
+  for(let key in props){
+    if(props[key] && key!=="categoryId") tempDoc[key]=props[key];
   }
-  const condition = {
-    categoryName: {
-      $eq: props.categoryName,
-    },
-  };
+  if(Object.keys(tempDoc).length===0) return callback(400,{message:"Empty Body"});
   const updateDoc = {
-    $set: {
-      categoryDescription: props.categoryDescription,
-      categoryImage: props.categoryImage,
-    },
+    $set: tempDoc,
   };
-  const options = {
-    upsert: false,
-  };
-  category.updateOne(condition, updateDoc, options).then((response) => {
-    return callback(null, response);
-  }).catch((err) => {
-    return callback(err);
-  });
+  const options = {upsert: false};
+  try{
+    if(props.categoryImage){
+      updateDoc.categoryImage= await uploadToCloudinary(process.cwd()+'/uploads/'+props.categoryImage);
+      let modelObj=await category.findByIdAndUpdate(props.categoryId, updateDoc, options);
+      return callback(201,{message:"success",data:modelObj});
+    }
+  }catch(err){
+    return callback(null,null,err);
+  }
 }
 
 
 async function deleteCategoryById(props, callback) {
-  if(!props.user.isAdmin){
-    return callback({
-      message:"Unauthorized"
-    })
-  }
   const condition = {
-    _id: {
-      $eq: props.categoryId,
-    },
+    _id: props.categoryId,
   };
-  category.deleteOne(condition).then((response) => {
-    return callback(null, response);
+  category.deleteOne(condition).then((data) => {
+    return data.deletedCount!==0?callback(200, {message:data}):callback(404,{message:"Invalid Category"});
   }).catch((err) => {
-    return callback(err);
+    return callback(null,null,err);
   });
 }
 
 
 async function deleteCategoryByName(props, callback) {
-  if(!props.user.isAdmin){
-    return callback({
-      message:"Unauthorized"
-    })
-  }
   const condition = {
-    categoryName: {
-      $eq: props.categoryName,
-    },
+    categoryName: props.categoryName,
   };
-  category.deleteOne(condition).then((response) => {
-    return callback(null, response);
+  category.deleteOne(condition).then((data) => {
+    return data.deletedCount!==0?callback(200, {message:data}):callback(404,{message:"Invalid Category"});
   }).catch((err) => {
     return callback(err);
   });
@@ -121,8 +98,8 @@ module.exports = {
   createCategory,
   getCategoryById,
   getCategoryByName,
-  getCategories,
-  updateCategoryByName,
+  getAllCategories,
+  updateCategoryById,
   deleteCategoryById,
   deleteCategoryByName,
 };

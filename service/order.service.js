@@ -39,8 +39,6 @@ async function verifyPayment(props,callback){
 }
 
 //get all orders
-//write docs
-//make images available
 
 
 

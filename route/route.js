@@ -17,9 +17,9 @@ router.post('/user/login',userController.login);
 router.get('/user/accessToken',userController.generateAccessToken);
 
 router.post('/category', upload.categoryUpload, categoryController.createCategory);
-router.get('/category', categoryController.getCategories);
+router.get('/category', categoryController.getAllCategories);
 router.get('/category/:categoryName', categoryController.getCategoryByName);
-router.put('/category/:categoryName', upload.categoryUpload, categoryController.updateCategoryByName);
+router.put('/category/:categoryId', upload.categoryUpload, categoryController.updateCategoryById);
 router.delete('/category/:categoryName', categoryController.deleteCategoryByName);
 router.get('/category/id/:categoryId', categoryController.getCategoryById);
 router.delete('/category/id/:categoryId', categoryController.deleteCategoryById);
