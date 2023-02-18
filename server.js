@@ -18,6 +18,11 @@ dotenv.config();
 mongoose.connect(process.env.MONGO_URL).then(()=>console.log("db connected")).catch((e)=>console.log(e));
 
 // configuring cloudinary
+cloudinary.config({
+    cloud_name: "YOUR_CLOUD_NAME",
+    api_key: "YOUR_API_NAME",
+    api_secret: "YOUR_API_SECRET",
+});
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
