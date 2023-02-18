@@ -7,7 +7,7 @@ const orderController=require('../controller/order.controller');
 
 const express = require('express');
 const router=express.Router();
-const upload=require('../multer/upload');
+const upload=require('../util/upload');
 
 /*User Routes (Filtered from JWT processor)*/
 router.post('/user', userController.registerUser);                                  // done

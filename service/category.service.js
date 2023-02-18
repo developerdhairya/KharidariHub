@@ -1,9 +1,9 @@
 const category = require('../model/category.model');
 const {MONGO_CONFIG} = require('../config/config');
+const uploadToCloudinary=require('../util/upload');
 
 
 async function createCategory(props, callback) {
-  console.log(props);
   if(!props.user.isAdmin){
     return callback({
       message:"Unauthorized"
@@ -12,13 +12,17 @@ async function createCategory(props, callback) {
   const model = new category({
     categoryName: props.categoryName,
     categoryDescription: props.categoryDescription,
-    categoryImage: props.categoryImage,
+    categoryImage: null,
   });
-  model.save().then((response) => {
-    return callback(null, response);
-  }).catch((err) => {
-    return callback(err);
-  });
+
+  try{
+    let url= await uploadToCloudinary(__dirname+'/uploads/'+props.categoryImage);
+    model.categoryImage=url;
+    let modelObj=model.save();
+    return callback(201,{message:"success"});
+  }catch{
+    return callback(null,null,err);
+  }
 }
 
 async function getCategories(props, callback) {
