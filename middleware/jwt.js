@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
 
-const filters=["/api/user/*"];
+const filters=["/api/user/*",'/api/api-docs/*'];
 
 function processJWT(req, res, next) {
+ 
     for(let regexp of filters){
         if(req.path.match(regexp)){
             return next();

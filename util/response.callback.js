@@ -1,16 +1,14 @@
 
 //responsibile for sending responses to api requests.
-const getResponseCallback=function(req,res,next){
-    let callback=(err,result)=>{
+const getResponseCallback=(req,res,next)=>{
+    let callback=(statusCode,message,err=null)=>{
         if(err){
-            next(err);
-        }else{
-            res.status(200).send({
-                message:"Success",
-                data:result,
-            });
+            if(err.name==="MongoServerError" || err.name==="ValidationError") return res.status(400).json({message:err.message});
+            if(err.name==="UnauthorizedError") return res.status(401).json({message:err.message});
+            return res.status(500).json({message:err.message});
         }
-    }
+        res.status(statusCode).send(message);
+    };
     return callback;
 }
 

@@ -8,7 +8,7 @@ async function createOrder(props, callback) {
   try {
     const condition={userId: props.user.userId};
     let cartObj=await cart.findOne(condition);
-    if(cartObj.orderItems.length===0) throw 'Inva'
+    if(cartObj.orderItems.length===0) throw 'Inva';
     cartObj=cartObj.toJSON();                                                        // will never return null as cart is created at time of user creation
     const {paymentId,paymentUrl}=await paymentService.createPaymentLink(cartObj.checkoutPrice,props.user.emailId);
     cartObj.paymentId=paymentId;

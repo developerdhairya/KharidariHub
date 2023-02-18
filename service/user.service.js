@@ -7,11 +7,7 @@ const cart = require('../model/cart.model');
 const jwt=require('jsonwebtoken');
 
 async function registerUser(props, callback) {
-  if (props.password && !props.password.match(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}/g)) {
-    return callback({
-      message: 'Strong password required',
-    });
-  }
+  
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(props.password, salt);// generating hash syncronously
   const verificationToken = Math.floor(Math.random() * 10000);
@@ -28,18 +24,20 @@ async function registerUser(props, callback) {
       address:props.address
     });
     const userObj = await userModel.save();
-    const cartModel = new cart({userId:userObj._id,checkoutPrice:0});
+    const cartModel = new cart({
+      userId:userObj._id,
+      checkoutPrice:0
+    });
     await cartModel.save();
     await session.commitTransaction();
     mailingService.sendVerificationToken(props.emailId, verificationToken); //async op
-    return callback(null, {
+    return callback(201, {
       userData: userObj,
       message: 'Verification Required.Kindly check your mail',
     });
   } catch (err) {
-    console.log(err);
     await session.abortTransaction();
-    return callback(err);
+    return callback(null,null,err);
   } finally {
     session.endSession();
   }
@@ -54,12 +52,12 @@ async function resendVerificationToken(props, callback) {
   };
   try {
     const userObj = await user.findOne(condition);
-    if (userObj == null || !userObj) throw 'Invalid Account';
-    if (userObj.verified) throw 'User has already been verified';
+    if (userObj == null || !userObj) return callback(400,{message:"Invalid Email Id"});
+    if (userObj.verified) return callback(404,{message:"User has already been verified"});
     mailingService.sendVerificationToken(props.emailId, userObj.verificationToken);
-    return callback(null, {acknowledged: true});
+    return callback(202, {acknowledged: true});
   } catch (err) {
-    return callback(err);
+    return callback(null,null,err);
   }
 }
 
@@ -76,58 +74,56 @@ async function verifyUser(props, callback) {
   };
   try {
     const userObj = await user.findOne(condition);
-    if (userObj == null || !userObj) throw 'Invalid Account';
-    if (userObj.verified) throw 'User has already been verified';
-    if (userObj.verificationToken !== props.verificationToken) throw 'Invalid OTP';
+    if (userObj == null || !userObj) return callback(404,{message:"Invalid User"});
+    if (userObj.verified) return callback(400,{message:'User has already been verified'});
+    if (userObj.verificationToken !== props.verificationToken) return callback(400,{message:'Invalid Verification Code'});
     await user.updateOne(condition, updateDoc);
-    return callback(null, {verified: true});
+    return callback(200, {verified: true});
   } catch (err) {
-    return callback(err);
+    return callback(null,null,err);
   }
 }
 
 async function login(props, callback) {
-  if (!props.emailId || !props.password) {
-    return callback({message: 'emailId and password required'});
-  }
+  
   try {
-    if (!props.emailId) throw 'Email Id required';
     const userObj = await user.findOne({emailId: props.emailId});
-    if (!userObj || userObj == null) throw 'User Not Found';
-    if (!userObj.verified) throw 'User Not Verified';
-    if(!bcrypt.compareSync(props.password,userObj.hashedPassword)){
-      throw 'Invalid Password';
-    }
+    if (!userObj) return callback(400,{message:"Invalid emailId"});
+    console.log(userObj.verified);
+    if (!userObj.verified) return callback(404,{message:'User has not been verified'});
+    if(!bcrypt.compareSync(props.password,userObj.hashedPassword)) return callback(401,{message:'Invalid Password'});
     const payload = {
       userId:userObj._id,
       emailId: props.emailId,
       isAdmin: userObj.isAdmin,
     };
-    console.log(payload);
-    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
+    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET,{
+      expiresIn:'1h'
+    });
     const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET,{
       expiresIn:'90d'
     });
-    return callback(null, {accessToken: accessToken, refreshToken: refreshToken});
+    return callback(200, {accessToken: accessToken, refreshToken: refreshToken});
   } catch (err) {
-    return callback(err);
+    return callback(null,null,err);
   }
 }
 
 async function generateAccessToken(props, callback) {
   if (!props.refreshToken || props.refreshToken === null) {
-    callback({message: 'Refresh Token Required'});
+    callback(400,{message: 'Refresh Token Required'});
   }
   jwt.verify(props.refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, payload) => {
     if (err) {
-      return callback({message: 'Invalid Token'});
+      return callback(400,{message: 'Invalid Token'});
     }
     delete payload['iat'];
     delete payload['exp'];
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET,{
       expiresIn:'1h'
     });
-    return callback(null, {accessToken: accessToken});
+
+    return callback(200, {accessToken: accessToken});
   });
 }
 
