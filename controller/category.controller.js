@@ -3,13 +3,13 @@ const { getResponseCallback } = require('../util/response.callback');
 
 
 const createCategory=(req,res,next)=>{
+    let callback=getResponseCallback(req,res,next);
+    if(!req.user.isAdmin) return callback(404,{message:"Unauthorized to perform the desired action"});
     let props={
         categoryName:req.body.categoryName,
         categoryDescription:req.body.categoryDescription,
         categoryImage:req.fileName,
-        user:req.user,
     }
-    let callback=getResponseCallback(req,res,next);
     categoryService.createCategory(props,callback);
 }
 

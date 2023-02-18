@@ -1,10 +1,11 @@
 const multer = require('multer');
 const uuid = require('uuid');
 const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb)=>{
-        cb(null, __dirname+'/uploads');
+        cb(null, process.cwd()+'/uploads');
       },
     filename: (req, file, cb) =>{
         req.fileName=uuid.v4()+'.'+file.originalname.split('.').pop();
@@ -23,7 +24,7 @@ let uploadToCloudinary=async (localPath)=> {
     }catch(err){
         console.log(err);
     }finally{
-        fs.unlinkSync(localPath);
+        fs.unlink(localPath,()=>`${localPath} deleted`);
     }
 }
 
