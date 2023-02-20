@@ -33,7 +33,6 @@ const fields={
   },
   stock: {
     type: Number,
-    required: true,
     min: 0,
   },
   rating: {

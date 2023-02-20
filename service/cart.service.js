@@ -4,12 +4,12 @@ const ObjectId = require('mongoose').Types.ObjectId;
 
 async function addToCart(props, callback) {
   try {
-    if (!props.productId || !props.quantity) throw 'productId and quantity required';
 
     const condition = {userId: new ObjectId(props.user.userId)};
     const cartObj = await cart.findOne(condition);// will never return null as cart is created at time of user creation
     let checkoutPrice = cartObj.checkoutPrice; 
     const productObj = await product.findById(props.productId).select('price');
+    if(!productObj) return callback(400,{message:"invalid productId"});
     const productPrice=productObj.price;
 
     let isPresent = false;
@@ -36,21 +36,21 @@ async function addToCart(props, callback) {
         checkoutPrice:checkoutPrice
       },
     };
-    const updatedCartObj = await cart.updateOne(condition, updateDoc);
-    return callback(null, updatedCartObj);
+    const updatedCartObj = await cart.findOneAndUpdate(condition, updateDoc,{upsert:false});
+    return callback(201, updatedCartObj);
   } catch (err) {
-    return callback(err);
+    return callback(null,null,err);
   }
 }
 
 
 async function deductFromCart(props, callback) {
   try {
-    if (!props.productId) throw 'productId required';
     const condition = {userId: new ObjectId(props.user.userId)};
     const cartObj = await cart.findOne(condition);                // will never return null as cart is created at time of user creation
     let checkoutPrice = cartObj.checkoutPrice; 
-    const productObj = await product.findById(props.productId).select('price');
+    const productObj = await product.findById(props.productId);
+    if(!productObj) return callback(400,{message:"invalid productId"});
     const productPrice=productObj.price;
 
     let isPresent = false;
@@ -67,7 +67,7 @@ async function deductFromCart(props, callback) {
       }
     }
     if (!isPresent) {
-      throw 'Item not Present';
+      return callback(400,"Item is not present in cart");
     }
     const updateDoc = {
       $set: {
@@ -75,24 +75,22 @@ async function deductFromCart(props, callback) {
         checkoutPrice:checkoutPrice
       },
     };
-    const updatedCartObj = await cart.updateOne(condition, updateDoc);
-    return callback(null, updatedCartObj);
+    const updatedCartObj = await cart.findOneAndUpdate(condition, updateDoc);
+    return callback(201, updatedCartObj);
   } catch (err) {
-    return callback(err);
+    return callback(null,null,err);
   }
 }
 
 async function getCart(props, callback) {
   try {
-    if (!props.user.userId) throw 'userId required';
-    cart.findOne({userId: props.user.userId}).populate('orderItems.productId').exec((err,res)=>{
-      console.log(res);
+    cart.findOne({userId: props.user.userId}).populate('orderItems.productId').exec((err,data)=>{
       if(err) throw err;
-      return callback(null,res);
+      return callback(200,data);
     });
     
   } catch (err) {
-    return callback(err);
+    return callback(null,null,err);
   }
 }
 

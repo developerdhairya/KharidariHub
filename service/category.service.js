@@ -8,8 +8,9 @@ async function createCategory(props, callback) {
     categoryDescription: props.categoryDescription,
   });
   try{
+    console.log(props.categoryImage);
     if(props.categoryImage){
-      model.categoryImage= await uploadToCloudinary(process.cwd()+'/uploads/'+props.categoryImage);
+      model.categoryImage= props.categoryImage.path;
     }
     let modelObj= await model.save();
     return callback(201,{message:"success",data:modelObj});
@@ -21,7 +22,8 @@ async function createCategory(props, callback) {
 async function getAllCategories(props, callback) {
   const pageSize = Math.abs(props.pageSize) || 10;
   const pageNumber = Math.abs(props.pageNumber) || 1;
-  category.find({}).limit(pageSize).skip(pageSize * (pageNumber - 1)).then((data) => {
+  const sort=props.sort<=0?-1:1;
+  category.find({}).limit(pageSize).skip(pageSize * (pageNumber - 1)).sort({categoryName:sort}).then((data) => {
     return callback(200, data);
   }).catch((err) => {
     return callback(null,null,err);
@@ -62,9 +64,9 @@ async function updateCategoryById(props, callback) {
   try{
     if(props.categoryImage){
       updateDoc.categoryImage= await uploadToCloudinary(process.cwd()+'/uploads/'+props.categoryImage);
-      let modelObj=await category.findByIdAndUpdate(props.categoryId, updateDoc, options);
-      return callback(201,{message:"success",data:modelObj});
     }
+    let modelObj=await category.findByIdAndUpdate(props.categoryId, updateDoc, options);
+    return modelObj===null?callback(400,{message:"Invalid Category"}):callback(201,{message:"success",data:modelObj});
   }catch(err){
     return callback(null,null,err);
   }
@@ -90,7 +92,7 @@ async function deleteCategoryByName(props, callback) {
   category.deleteOne(condition).then((data) => {
     return data.deletedCount!==0?callback(200, {message:data}):callback(404,{message:"Invalid Category"});
   }).catch((err) => {
-    return callback(err);
+    return callback(null,null,err);
   });
 }
 

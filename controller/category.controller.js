@@ -8,7 +8,7 @@ const createCategory=(req,res,next)=>{
     let props={
         categoryName:req.body.categoryName,
         categoryDescription:req.body.categoryDescription,
-        categoryImage:req.fileName,
+        categoryImage:req.file,
     }
     categoryService.createCategory(props,callback);
 }
@@ -26,7 +26,8 @@ const getCategoryByName=(req,res,next)=>{
 const getAllCategories=(req,res,next)=>{
     let props={
         pageSize:req.query.pageSize,
-        pageNumber:req.query.pageNumber
+        pageNumber:req.query.pageNumber,
+        sort:req.query.sort??-1
     }
     let callback=getResponseCallback(req,res,next);
     categoryService.getAllCategories(props,callback);

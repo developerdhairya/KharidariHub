@@ -25,9 +25,9 @@ router.get('/category/id/:categoryId', categoryController.getCategoryById);
 router.delete('/category/id/:categoryId', categoryController.deleteCategoryById);
 
 router.post('/product', upload.productsUpload, productController.createProduct);
-router.get('/product', productController.getProducts);
+router.get('/product', productController.getAllProducts);
 router.get('/product/:productName', productController.getProductByName);
-router.put('/product/:productName', upload.productsUpload, productController.updateProductByName);
+router.put('/product/:productId', upload.productsUpload, productController.updateProductById);
 router.delete('/product/:productName', productController.deleteProductByName);
 router.get('/product/id/:productId', productController.getProductById);
 router.delete('/product/id/:productId', productController.deleteProductById);
