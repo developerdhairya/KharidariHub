@@ -36,8 +36,8 @@ async function addToCart(props, callback) {
         checkoutPrice:checkoutPrice
       },
     };
-    const updatedCartObj = await cart.findOneAndUpdate(condition, updateDoc,{upsert:false});
-    return callback(201, updatedCartObj);
+    let updatedcartObj=await cart.findOneAndUpdate(condition, updateDoc,{upsert:false,new:true});
+    return callback(201, updatedcartObj);
   } catch (err) {
     return callback(null,null,err);
   }
@@ -75,8 +75,8 @@ async function deductFromCart(props, callback) {
         checkoutPrice:checkoutPrice
       },
     };
-    const updatedCartObj = await cart.findOneAndUpdate(condition, updateDoc);
-    return callback(201, updatedCartObj);
+    let updatedcartObj=await cart.findOneAndUpdate(condition, updateDoc,{upsert:false,new:true});
+    return callback(201, updatedcartObj);
   } catch (err) {
     return callback(null,null,err);
   }

@@ -34,7 +34,7 @@ async function createPaymentLink(amount, email) {
 }
 
 async function verifyPayment(paymentId) {
-  instance.paymentLink.fetch(paymentLinkId);
+  return instance.paymentLink.fetch(paymentId);
 }
 
 module.exports = {

@@ -37,7 +37,8 @@ router.put('/cart/deduct',cartController.deductFromCart);
 router.get('/cart',cartController.getCart);
 
 router.post('/order/create',orderController.createOrder);
-
+router.get('/order/payment/verify/:paymentId',orderController.verifyPayment);
+router.get('/order',orderController.getMyOrders);
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('../swagger.json');

@@ -7,21 +7,21 @@ async function createOrder(props, callback) {
   const session=await mongoose.startSession();
   try {
     const condition={userId: props.user.userId};
-    let cartObj=await cart.findOne(condition);
-    if(cartObj.orderItems.length===0) throw 'Inva';
-    cartObj=cartObj.toJSON();                                                        // will never return null as cart is created at time of user creation
+    session.startTransaction();
+    let cartObj=await cart.findOne(condition);    // cart created at time of user registration
+    if(cartObj.orderItems.length===0) return callback(400,{message:"Empty cart"});
+    cartObj=cartObj.toJSON();                                                        
     const {paymentId,paymentUrl}=await paymentService.createPaymentLink(cartObj.checkoutPrice,props.user.emailId);
     cartObj.paymentId=paymentId;
     cartObj.paymentUrl=paymentUrl;
-    session.startTransaction();
     const orderModel=new order(cartObj);
     const orderObj=await orderModel.save();
-    cart.updateOne(condition,{$set:{orderItems:[]}});
+    await cart.findOneAndUpdate(condition,{$set:{orderItems:[]}},{new:true});
     await session.commitTransaction();
-    return callback(null, orderObj);
+    return callback(201, orderObj);
   } catch (err) {
     session.abortTransaction();
-    return callback(err);
+    return callback(null,null,err);
   }finally{
     session.endSession();
   }
@@ -29,19 +29,38 @@ async function createOrder(props, callback) {
 
 async function verifyPayment(props,callback){
   try{
-    let orderObj=await order.findById(props.orderId);
-    if(orderObj.userId!==props.user.userId) throw 'Unauthorized';
-    let response=await paymentService.verifyPayment(orderObj.paymentId);
-    return callback(null,response);
+    let orderObj=await order.findOne({paymentId:props.paymentId});
+    if(!orderObj || orderObj==null) return callback(400,{message:"Invalid Payment Link"});;
+    let paymentObj=await paymentService.verifyPayment(props.paymentId);
+    console.log(paymentObj);
+    if(paymentObj.payments.status==='captured'){
+      await order.updateOne({paymentId:props.paymentId},{$set:{paymentStatus:true}});
+    }
+    return callback(200,paymentObj);
   }catch(err){
-    return callback(err);
+    console.log(err);
+    return callback(null,null,err);
   }
 }
 
-//get all orders
+async function getMyOrders(props,callback){
+  const pageNumber=Math.abs(props.pageSize) || 1;
+  const pageSize=Math.abs(props.pageNumber) || 10;
+  const sort=props.sort<=0?-1:1;
+  try{
+    const orderObj=await order.find({userId:props.user.userId}).limit(pageNumber).skip(pageSize*(pageNumber-1)).sort({createdAt:sort}).populate('orderItems.productId');
+    return callback(200,orderObj);
+
+  }catch(err){
+    return callback(null,null,err);
+}
+
+}
 
 
 
 module.exports={
-  createOrder
+  createOrder,
+  verifyPayment,
+  getMyOrders
 }
